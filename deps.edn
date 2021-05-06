@@ -1,0 +1,26 @@
+{:paths ["src" "resources"]
+ :deps {org.clojure/clojure {:mvn/version "1.10.3"}}
+ :aliases
+ {:test {:extra-paths ["test"]
+         :extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}}}
+  :dev  {:extra-paths ["test"]
+         :extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}
+                      criterium/criterium {:mvn/version "0.4.6"}}}
+  :test-clj
+  {:extra-deps {com.cognitect/test-runner
+                {:git/url "https://github.com/cognitect-labs/test-runner"
+                 :sha "2d69f33d7980c3353b246c28f72ffeafbd9f2fab"}}
+   :main-opts ["-m" "cognitect.test-runner"
+               "-d" "test"]}
+  :test-cljs
+  {:extra-deps {olical/cljs-test-runner {:mvn/version "3.8.0"}}
+   :main-opts ["-m" "cljs-test-runner.main"]}
+  :jar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.0.211"}}
+        :exec-fn hf.depstar/jar
+        :exec-args {:jar "crockery.jar" :sync-pom true}}
+  :install {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+            :exec-fn deps-deploy.deps-deploy/deploy
+            :exec-args {:installer :local :artifact "crockery.jar"}}
+  :deploy {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+           :exec-fn deps-deploy.deps-deploy/deploy
+           :exec-args {:installer :remote :artifact "crockery.jar"}}}}
