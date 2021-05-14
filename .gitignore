@@ -12,3 +12,4 @@
 /.rebel_readline_history
 /.socket-repl-port
 /cljs-test-runner-out/
+/*.asc
