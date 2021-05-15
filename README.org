@@ -6,6 +6,9 @@
 
 Print clojure maps as a human-readable table.
 
+#+CAPTION: Clojars project
+[[https://clojars.org/com.joshuadavey/crockery][https://img.shields.io/clojars/v/com.joshuadavey/crockery.svg]]
+
 #+TOC: headlines 1 local
   
 ** Usage

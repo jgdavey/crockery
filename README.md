@@ -2,6 +2,8 @@
 
 Print clojure maps as a human-readable table.
 
+[![img](https://img.shields.io/clojars/v/com.joshuadavey/crockery.svg "Clojars project")](https://clojars.org/com.joshuadavey/crockery)
+
 1.  [Usage](#usage)
 2.  [Colspec options](#column-options)
 3.  [Formats](#formats)
