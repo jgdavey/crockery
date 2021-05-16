@@ -85,7 +85,6 @@
                     (or cols
                         (:columns opts)
                         (-> data first keys)))]
-     (def cols cols)
      (p/render-table renderer cols data))))
 
 (defn print-table
