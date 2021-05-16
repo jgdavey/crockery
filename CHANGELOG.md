@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Remove errant `def` leftover from debugging
+- Don't require test.check to be on classpath for specs to work
 
 ## [0.1.1] - 2021-05-25
 ### Added

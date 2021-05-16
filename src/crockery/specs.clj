@@ -2,8 +2,7 @@
   (:require [clojure.spec.alpha :as s]
             [clojure.spec.gen.alpha :as gen]
             [crockery.core :as crock]
-            [crockery.protocols :as p]
-            [clojure.spec.test.alpha :as stest]))
+            [crockery.protocols :as p]))
 
 (s/def ::when boolean?)
 (s/def ::key-fn (s/or :kw keyword?
@@ -57,12 +56,10 @@
 (s/def ::opts-arg (s/nilable (s/keys :opt-un [::format ::defaults])))
 (s/def ::cols-arg (s/nilable (s/coll-of ::col-arg)))
 
-(def data-gen (s/gen (s/coll-of (s/map-of keyword? any?) :into [])))
-
 (s/def ::data-arg (s/nilable
                    (s/with-gen
                      any?
-                     (constantly data-gen))))
+                     #(s/gen (s/coll-of (s/map-of keyword? any?) :into [])))))
 
 (s/def ::table-args
   (s/alt
@@ -79,6 +76,7 @@
   :ret (s/every string?))
 
 (comment
+  (require '[clojure.spec.test.alpha :as stest])
   (stest/unstrument `crock/table)
   (stest/instrument `crock/table)
   )
