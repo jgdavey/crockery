@@ -20,7 +20,7 @@
                      s
                      (pad-spaces (Math/ceil half-padding)))))))
 
-(defn column-defaults [{:keys [key-fn title title-align align render-cell render-title] :as col}]
+(defn normalize-column [{:keys [key-fn title title-align align render-title render-cell] :as col}]
   (let [nm (:name col)]
     (merge col
            {:align (keyword (or align :left))
@@ -34,6 +34,3 @@
   (if (map? col)
     col
     {:name col}))
-
-(def column-xform (comp (map to-column-map)
-                        (map column-defaults)))

@@ -64,3 +64,25 @@
       (is (= (binding [crock/*default-options* {:format :gfm}]
                (crock/table cols data))
              expected)))))
+
+(deftest test-default-column-options
+  (let [rendered (crock/table {:defaults {:align :center}}
+                              [:a :b]
+                              [{:a "foo\nbar" :b "what\tever"}])]
+    (is (=  rendered
+            ["|----------+------------|"
+             "|    A     |     B      |"
+             "|----------+------------|"
+             "| foo\\nbar | what\\tever |" ;; lines up when printed
+             "|----------+------------|"])))
+  (let [rendered (crock/table {:defaults {:align :center
+                                          :render-title pr-str
+                                          :title-align :left}}
+                              [{:name :a, :title-align :right} :b]
+                              [{:a "foo\nbar" :b "what\tever"}])]
+    (is (= rendered
+           ["|----------+------------|"
+            "|       :a | :b         |"
+            "|----------+------------|"
+            "| foo\\nbar | what\\tever |" ;; lines up when printed
+            "|----------+------------|"]))))

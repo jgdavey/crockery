@@ -1,6 +1,6 @@
 (ns crockery.hiccup
   (:require [crockery.protocols :as p]
-            [crockery.util :refer [column-xform]]))
+            [crockery.util :refer [normalize-column to-column-map]]))
 
 (def renderer
   (reify
@@ -24,5 +24,7 @@
   ([data]
    (table {} data))
   ([cols data]
-   (let [cols (into [] column-xform cols)]
+   (let [cols (into [] (comp (map to-column-map)
+                             (map normalize-column))
+                    cols)]
      (p/render-table renderer cols data))))

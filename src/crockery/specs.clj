@@ -47,7 +47,14 @@
 (s/def ::format (s/or :built-in #{:org :fancy :gfm :tsv}
                       :custom ::renderer))
 
-(s/def ::opts-arg (s/nilable (s/keys :opt-un [::format])))
+(s/def ::defaults (s/keys :opt-un [::align
+                                   ::title-align
+                                   ::render-cell
+                                   ::render-title
+                                   ::when
+                                   ::ellipsis]))
+
+(s/def ::opts-arg (s/nilable (s/keys :opt-un [::format ::defaults])))
 (s/def ::cols-arg (s/nilable (s/coll-of ::col-arg)))
 
 (def data-gen (s/gen (s/coll-of (s/map-of keyword? any?) :into [])))

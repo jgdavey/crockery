@@ -4,9 +4,10 @@
             [crockery.gfm :as gfm]
             [crockery.tsv :as tsv]
             [crockery.protocols :as p]
-            [crockery.util :refer [column-xform]]))
+            [crockery.util :refer [to-column-map normalize-column]]))
 
-(def ^:dynamic *default-options* {:format :org})
+(def ^:dynamic *default-options* {:format :org
+                                  :defaults {:align :left}})
 
 (defn builtin-renderers []
   {:org org/renderer
@@ -55,10 +56,15 @@
   When a map is provided, either `:name` or `:key-fn` is
   required.
 
-  `opts` is a map of options. Currently accepts a single
-  key :format, which can either be one of the built-in
-  formatters by key, e.g. :org, or anything that implements
-  crockery.protocols/RenderTable.
+  `opts` is a map of table options. All are optional, as is the
+  argument itself.
+
+      :format       Can either be one of the built-in formatters
+                    by key (:org, :tsv, :gfm, :fancy), or
+                    anything that implements crockery.protocols/RenderTable.
+
+      :defaults     Column defaults to be used when not provided
+                    in an individual column's colspec.
 
   Returns a lazy sequence of strings, each representing a
   printable line."
@@ -70,13 +76,16 @@
                        [nil cols-or-opts])]
      (table opts cols data)))
   ([opts cols data]
-   (let [{:keys [format] :as opts} (merge *default-options* opts)
+   (let [{:keys [format defaults] :as opts} (merge *default-options* opts)
          renderer (get (builtin-renderers) format format)
          ;;_ (assert (satisfies? p/RenderTable renderer))
-         cols (into [] column-xform
+         cols (into [] (comp (map to-column-map)
+                             (map #(merge defaults %))
+                             (map normalize-column))
                     (or cols
                         (:columns opts)
                         (-> data first keys)))]
+     (def cols cols)
      (p/render-table renderer cols data))))
 
 (defn print-table

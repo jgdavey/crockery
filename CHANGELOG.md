@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Provide custom "render" functions for cells and titles using the
   `:render-cell` and `:render-title` colspec options, respectively.
+- Default colspec options can now be provided table-wide, using the
+  `:defaults` option. All are optional, but useful keys might include
+  `:align`, `:title-align`, :`:render-cell`, and `:render-title`.
 
 ## [0.1.0] - 2021-05-14
 ### Added

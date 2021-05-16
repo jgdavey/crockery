@@ -140,6 +140,28 @@
                  "| foo\\nbar | what\\tever |" ;; lines up when printed
                  "|----------+------------|"]))))
 
+(deftest test-default-column-options
+  (let [rendered (table-as-string {:defaults {:align :center}}
+                                  [:a :b]
+                                  [{:a "foo\nbar" :b "what\tever"}])]
+    (is (table? rendered
+                ["|----------+------------|"
+                 "|    A     |     B      |"
+                 "|----------+------------|"
+                 "| foo\\nbar | what\\tever |" ;; lines up when printed
+                 "|----------+------------|"])))
+  (let [rendered (table-as-string {:defaults {:align :center
+                                              :render-title pr-str
+                                              :title-align :left}}
+                                  [{:name :a, :title-align :right} :b]
+                                  [{:a "foo\nbar" :b "what\tever"}])]
+    (is (table? rendered
+                ["|----------+------------|"
+                 "|       :a | :b         |"
+                 "|----------+------------|"
+                 "| foo\\nbar | what\\tever |" ;; lines up when printed
+                 "|----------+------------|"]))))
+
 (deftest test-custom-cell-formatter
   (let [rendered (table-as-string [{:name :name
                                     :render-title pr-str}
