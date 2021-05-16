@@ -75,3 +75,9 @@
    (extend-type Symbol
      RenderHeader
      (render-header [this] (titleize (name this)))))
+
+(defn render-cell* [value]
+  (render-cell value nil))
+
+(defn render-title* [value]
+  (render-header value))

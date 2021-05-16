@@ -8,6 +8,10 @@
 (s/def ::when boolean?)
 (s/def ::key-fn (s/or :kw keyword?
                       :fn (s/fspec :args (s/cat :row map?))))
+(s/def ::render-cell (s/fspec :args (s/cat :value any?)
+                              :ret string?))
+(s/def ::render-title (s/fspec :args (s/cat :value any?)
+                               :ret string?))
 (s/def ::title string?)
 (s/def ::title-align #{:left :center :right})
 (s/def ::align #{:left :center :right})
@@ -24,6 +28,8 @@
 (s/def ::col-arg-map (s/keys :req-un [(or ::name ::key-fn)]
                              :opt-un [::name
                                       ::key-fn
+                                      ::render-cell
+                                      ::render-title
                                       ::title
                                       ::align
                                       ::title-align
@@ -36,7 +42,7 @@
                     #(satisfies? p/RenderTable %)
                     #(gen/return
                       (reify p/RenderTable
-                       (-render-table [_ _ _] [""])))))
+                       (render-table [_ _ _] [""])))))
 
 (s/def ::format (s/or :built-in #{:org :fancy :gfm :tsv}
                       :custom ::renderer))
@@ -53,7 +59,7 @@
 
 (s/def ::table-args
   (s/alt
-   :data (s/cat :data ::data-arg)
+   :data-arg (s/cat :data ::data-arg)
    :cols-or-opts+data (s/cat :cols-or-opts (s/or :cols ::cols-arg
                                                  :opts ::opts-arg)
                              :data ::data-arg)
@@ -66,5 +72,6 @@
   :ret (s/every string?))
 
 (comment
+  (stest/unstrument `crock/table)
   (stest/instrument `crock/table)
   )

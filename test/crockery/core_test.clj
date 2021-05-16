@@ -140,6 +140,34 @@
                  "| foo\\nbar | what\\tever |" ;; lines up when printed
                  "|----------+------------|"]))))
 
+(deftest test-custom-cell-formatter
+  (let [rendered (table-as-string [{:name :name
+                                    :render-title pr-str}
+                                   :age
+                                   {:name :joined :render-cell pr-str}] people)]
+    (is (table? rendered
+                ["|-----------+-----+---------------------------------------|"
+                 "| :name     | Age | Joined                                |"
+                 "|-----------+-----+---------------------------------------|"
+                 "| Alice     | 29  | #inst \"2019-03-01T00:00:00.000-00:00\" |"
+                 "| Bob       | 22  | #inst \"2020-10-29T00:00:00.000-00:00\" |"
+                 "| Charlotte | 42  | #inst \"2014-04-17T00:00:00.000-00:00\" |"
+                 "|-----------+-----+---------------------------------------|"]))))
+
+(deftest test-order-of-cell-fns
+  (let [rendered (table-as-string [{:key-fn (fn [row] (inc (get row :age)))
+                                    :render-cell (fn [value] (str (* 12 value) "|months"))
+                                    :title "Age in months"}]
+                                  people)]
+    (is (table? rendered
+                ["|------------------|"
+                 "| Age in months    |"
+                 "|------------------|"
+                 "| 360\\vert{}months |"
+                 "| 276\\vert{}months |"
+                 "| 516\\vert{}months |"
+                 "|------------------|"]))))
+
 (deftest test-empty-table
   (let [empty-table ["|--|" "|  |" "|--|" "|--|"]]
     (is (= empty-table (crock/table [])))

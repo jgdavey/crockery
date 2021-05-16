@@ -20,12 +20,13 @@
                      s
                      (pad-spaces (Math/ceil half-padding)))))))
 
-(defn column-defaults [{:keys [key-fn title title-align align] :as col}]
+(defn column-defaults [{:keys [key-fn title title-align align render-cell render-title] :as col}]
   (let [nm (:name col)]
     (merge col
            {:align (keyword (or align :left))
             :key-fn (or key-fn #(get % nm))
-            :title (or title (p/render-header (or nm key-fn)))
+            :render-cell (or render-cell p/render-cell*)
+            :title (or title ((or render-title p/render-title*) (or nm key-fn)))
             :title-align (keyword (or title-align align :left))
             :when (:when col true)})))
 

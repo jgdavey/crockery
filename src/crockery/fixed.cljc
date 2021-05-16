@@ -26,13 +26,17 @@
 (defrecord FixedWidthRender [th td assemble escape]
   p/RenderTable
   (render-table [_ cols data]
-    (let [rendered-headers (for [col cols]
+    (let [cell-fns (into []
+                         (map (fn [col]
+                                (let [key-fn (:key-fn col)
+                                      render-cell (:render-cell col)]
+                                  #(-> % key-fn render-cell escape))))
+                         cols)
+          rendered-headers (for [col cols]
                              (-> col :title escape))
           rendered-rows (for [row data]
-                          (for [col cols]
-                            (-> ((:key-fn col) row)
-                                (p/render-cell col)
-                                escape)))
+                          (for [cell-fn cell-fns]
+                            (cell-fn row)))
           colspecs (columns-with-widths cols (cons rendered-headers rendered-rows))]
       (assemble colspecs
                 (map th colspecs rendered-headers)

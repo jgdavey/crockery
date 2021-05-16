@@ -15,7 +15,7 @@
    :tsv tsv/renderer})
 
 (defn table
-  "Render a table.
+  "Render a table as sequence of strings.
 
   `data` should be a collection of maps with similar keys.
 
@@ -41,6 +41,16 @@
       :title-align   Similar to `:align`, but for the header
                      of the column. When not specified, will
                      use the value of `:align`.
+
+      :render-cell   Function to format body cells (not titles)
+                     after acesss, but before escaping. Default
+                     is `crockery.protocols/render-cell*`, but
+                     a useful alternative might be `pr-str`.
+                     Must return a string.
+
+      :render-title  Like `:render-cell`, but for titles.
+                     Must return a string. Defaults to
+                     `crockery.protocols/render-title*`.
 
   When a map is provided, either `:name` or `:key-fn` is
   required.
