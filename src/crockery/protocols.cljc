@@ -1,7 +1,5 @@
 (ns crockery.protocols
-  (:require [crockery.strings :refer [titleize]])
-  #?(:clj
-     (:import [java.text SimpleDateFormat])))
+  (:require [crockery.strings :refer [titleize]]))
 
 #?(:clj
    (set! *warn-on-reflection* true))
@@ -16,20 +14,8 @@
   (render-header [_]))
 
 #?(:clj
-   ;; See clojure instant
-   (def ^:private ^ThreadLocal thread-local-utc-date-format
-    ;; SimpleDateFormat is not thread-safe, so we use a ThreadLocal proxy for access.
-    ;; http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4228335
-     (proxy [ThreadLocal] []
-       (initialValue []
-         ;; javascript style
-         (doto (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss'Z'")
-           (.setTimeZone (java.util.TimeZone/getTimeZone "GMT")))))))
-
-#?(:clj
    (defn format-date ^String [^java.util.Date d]
-     (let [^java.text.DateFormat utc-format (.get thread-local-utc-date-format)]
-       (.format utc-format d))))
+     (str (.toInstant d))))
 
 #?(:cljs
    (defn format-date [d]

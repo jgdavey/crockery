@@ -28,19 +28,19 @@
 
 (def people [{:name "Alice" :age 29 :joined #inst "2019-03-01"}
              {:name "Bob" :age 22 :joined #inst "2020-10-29"}
-             {:name "Charlotte" :age 42 :joined #inst "2014-04-17"}])
+             {:name "Charlotte" :age 42 :joined #inst "2014-04-17T12:34:56.789-00:00"}])
 
 
 (deftest test-table-no-options
   (let [rendered (table-as-string people)]
     (is (table? rendered
-                ["|-----------+-----+----------------------|"
-                 "| Name      | Age | Joined               |"
-                 "|-----------+-----+----------------------|"
-                 "| Alice     | 29  | 2019-03-01T00:00:00Z |"
-                 "| Bob       | 22  | 2020-10-29T00:00:00Z |"
-                 "| Charlotte | 42  | 2014-04-17T00:00:00Z |"
-                 "|-----------+-----+----------------------|"]))))
+                ["|-----------+-----+--------------------------|"
+                 "| Name      | Age | Joined                   |"
+                 "|-----------+-----+--------------------------|"
+                 "| Alice     | 29  | 2019-03-01T00:00:00Z     |"
+                 "| Bob       | 22  | 2020-10-29T00:00:00Z     |"
+                 "| Charlotte | 42  | 2014-04-17T12:34:56.789Z |"
+                 "|-----------+-----+--------------------------|"]))))
 
 (deftest test-table-with-column-keys
   (let [rendered (table-as-string [:age :name] people)]
@@ -173,7 +173,7 @@
                  "|-----------+-----+---------------------------------------|"
                  "| Alice     | 29  | #inst \"2019-03-01T00:00:00.000-00:00\" |"
                  "| Bob       | 22  | #inst \"2020-10-29T00:00:00.000-00:00\" |"
-                 "| Charlotte | 42  | #inst \"2014-04-17T00:00:00.000-00:00\" |"
+                 "| Charlotte | 42  | #inst \"2014-04-17T12:34:56.789-00:00\" |"
                  "|-----------+-----+---------------------------------------|"]))))
 
 (deftest test-order-of-cell-fns
@@ -230,11 +230,11 @@
 
 (deftest test-gfm-format
   (testing "includes alignment hints"
-    (let [expected ["|   Name    | Age | Joined               |"
-                    "|:---------:|----:|:---------------------|"
-                    "|   Alice   |  29 | 2019-03-01T00:00:00Z |"
-                    "|   B\\|ob   |  22 | 2020-10-29T00:00:00Z |"
-                    "| Charlotte |  42 | 2014-04-17T00:00:00Z |"]
+    (let [expected ["|   Name    | Age | Joined                   |"
+                    "|:---------:|----:|:-------------------------|"
+                    "|   Alice   |  29 | 2019-03-01T00:00:00Z     |"
+                    "|   B\\|ob   |  22 | 2020-10-29T00:00:00Z     |"
+                    "| Charlotte |  42 | 2014-04-17T12:34:56.789Z |"]
           data (assoc-in people [1 :name]  "B|ob")
           cols [{:name :name :align :center}
                 {:key-fn :age, :title "Age", :align :right}
