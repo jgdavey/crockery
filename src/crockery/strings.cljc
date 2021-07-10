@@ -21,7 +21,12 @@
   (title-case
    (.replaceAll (string n) "-" " ")))
 
+(def ^:private ^:const escape-map
+  {\newline "\\n"
+   \tab  "\\t"
+   \return "\\r"
+   \formfeed "\\f"
+   \backspace "\\b"})
+
 (defn escape [s]
-  (str/escape s {\newline "\\n"
-                 \return  "\\r"
-                 \tab     "\\t"}))
+  (str/escape s escape-map))
