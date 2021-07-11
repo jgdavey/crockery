@@ -66,6 +66,10 @@
       :defaults     Column defaults to be used when not provided
                     in an individual column's colspec.
 
+      :max-width    The maximum textual width of a table. Useful when
+                    printing to a tty terminal. The default is your
+                    terminal width, if it can be detected.
+
   Returns a lazy sequence of strings, each representing a
   printable line."
   ([data]

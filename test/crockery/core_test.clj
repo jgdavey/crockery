@@ -140,6 +140,15 @@
                  "| foo\\nbar | what\\tever |" ;; lines up when printed
                  "|----------+------------|"]))))
 
+(deftest test-max-width
+  (let [rendered (table-as-string {:max-width 20} [:a :b] [{:a "foobar" :b "whatever"}])]
+    (is (table? rendered
+                ["|--------+---------|"
+                 "| A      | B       |"
+                 "|--------+---------|"
+                 "| foobar | what... |"
+                 "|--------+---------|"]))))
+
 (deftest test-default-column-options
   (let [rendered (table-as-string {:defaults {:align :center}}
                                   [:a :b]

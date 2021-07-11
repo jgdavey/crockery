@@ -7,4 +7,5 @@
         (for [tr body-rows]
           (str/join "\t" tr))))
 
-(def renderer (make-renderer {:assemble assemble}))
+(def renderer (make-renderer {:assemble assemble
+                              :chrome-width-fn (fn [i] (dec i))}))
