@@ -41,7 +41,7 @@
                     #(satisfies? p/RenderTable %)
                     #(gen/return
                       (reify p/RenderTable
-                       (render-table [_ _ _] [""])))))
+                       (render-table [_ _ _ _] [""])))))
 
 (s/def ::format (s/or :built-in #{:org :fancy :gfm :tsv}
                       :custom ::renderer))

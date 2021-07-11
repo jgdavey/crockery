@@ -5,7 +5,7 @@
 (def renderer
   (reify
     p/RenderTable
-    (render-table [_ cols data]
+    (render-table [_ _opts cols data]
       [:table
        [:thead
         (into [:tr]
@@ -27,4 +27,4 @@
    (let [cols (into [] (comp (map to-column-map)
                              (map normalize-column))
                     cols)]
-     (p/render-table renderer cols data))))
+     (p/render-table renderer {} cols data))))

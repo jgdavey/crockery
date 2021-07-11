@@ -5,7 +5,7 @@
    (set! *warn-on-reflection* true))
 
 (defprotocol RenderTable
-  (render-table [_ cols rows]))
+  (render-table [_ opts cols rows]))
 
 (defprotocol RenderCell
   (render-cell [_ _opts]))

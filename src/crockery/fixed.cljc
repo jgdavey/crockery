@@ -25,7 +25,7 @@
 
 (defrecord FixedWidthRender [th td assemble escape]
   p/RenderTable
-  (render-table [_ cols data]
+  (render-table [_ opts cols data]
     (let [cell-fns (into []
                          (map (fn [col]
                                 (let [key-fn (:key-fn col)
