@@ -20,6 +20,35 @@
                      s
                      (pad-spaces (Math/ceil half-padding)))))))
 
+
+(defn- non-string-seq? [coll]
+  (and (seqable? coll) (not (string? coll))))
+
+(defn data->cols-rows [data]
+  (cond
+    (map? data)
+    [[:key :value]
+     (map (fn [[k v]] {:key k :value v}) data)]
+
+    (non-string-seq? data)
+    (let [f (first data)]
+      (cond
+        (map? f)
+        [(keys f)
+         data]
+
+        (non-string-seq? f)
+        [(map-indexed (fn [i h] {:name i :title h}) f)
+         (rest data)]
+
+        :else
+        [[:value]
+         (map (fn [v] {:value v}) data)]))
+
+    :else
+    [[:value]
+     [{:value data}]]))
+
 (defn normalize-column [{:keys [key-fn title title-align align render-title render-cell] :as col}]
   (let [nm (:name col)]
     (merge col

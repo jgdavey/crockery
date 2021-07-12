@@ -4,7 +4,7 @@
             [crockery.gfm :as gfm]
             [crockery.tsv :as tsv]
             [crockery.protocols :as p]
-            [crockery.util :refer [to-column-map normalize-column]]))
+            [crockery.util :refer [to-column-map normalize-column data->cols-rows]]))
 
 (def ^:dynamic *default-options* {:format :org
                                   :defaults {:align :left}})
@@ -83,12 +83,13 @@
    (let [{:keys [format defaults] :as opts} (merge *default-options* opts)
          renderer (get (builtin-renderers) format format)
          ;;_ (assert (satisfies? p/RenderTable renderer))
+         [detected-cols data] (data->cols-rows data)
          cols (into [] (comp (map to-column-map)
                              (map #(merge defaults %))
                              (map normalize-column))
                     (or cols
                         (:columns opts)
-                        (-> data first keys)))]
+                        detected-cols))]
      (p/render-table renderer opts cols data))))
 
 (defn print-table

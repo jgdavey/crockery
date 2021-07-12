@@ -94,6 +94,51 @@
                                  people)
                 expected))))
 
+(deftest test-vec-of-vecs
+  (let [expected ["|-----------+-----|"
+                  "| Name      | Age |"
+                  "|-----------+-----|"
+                  "| Alice     | 29  |"
+                  "| Bob       | 22  |"
+                  "| Charlotte | 42  |"
+                  "|-----------+-----|"]
+        data (into [["Name" "Age"]]
+                   (map (juxt :name :age))
+                   people)]
+    (is (table? (table-as-string data) expected))))
+
+(deftest test-vec-of-strings
+  (let [expected ["|-------|"
+                  "| Value |"
+                  "|-------|"
+                  "| a     |"
+                  "| bbb   |"
+                  "| c     |"
+                  "|-------|"]
+        data ["a" "bbb" "c"]]
+    (is (table? (table-as-string data) expected))))
+
+(deftest test-plain-map
+  (let [expected ["|---------+----------|"
+                  "| Key     | Value    |"
+                  "|---------+----------|"
+                  "| :what   | 1        |"
+                  "| :are    | 42       |"
+                  "| :you    | testtest |"
+                  "| :Saying | 10.0     |"
+                  "|---------+----------|"]
+        data {:what "1" :are 42 :you "testtest" :Saying 10.0}]
+    (is (table? (table-as-string data) expected))))
+
+(deftest test-plain-value
+  (let [data #inst "2014-04-17T12:34:56.789-00:00"
+        expected ["|--------------------------|"
+                  "| Value                    |"
+                  "|--------------------------|"
+                  "| 2014-04-17T12:34:56.789Z |"
+                  "|--------------------------|"]]
+    (is (table? (table-as-string data) expected))))
+
 (deftest test-alignment
   (testing "Title alignment can differ"
     (let [rendered (table-as-string [{:key-fn :name

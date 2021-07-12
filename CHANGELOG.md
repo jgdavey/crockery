@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - New table option `:max-width` to resize columns that would be too
   big, defaults to terminal width if possible.
+- Support more shapes of data directly, i.e. vector of vectors, or a
+  single map.
 
 ### Changed
 - The RenderTable/render-table protocol method signature has changed.
