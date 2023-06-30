@@ -1,11 +1,16 @@
 (ns crockery.tsv
   (:require [clojure.string :as str]
-            [crockery.fixed :refer [make-renderer]]))
+            [crockery.strings :refer [escape]]
+            [crockery.protocols :as p]))
 
-(defn assemble [colspecs header-row body-rows]
-  (cons (str/join "\t" header-row)
-        (for [tr body-rows]
-          (str/join "\t" tr))))
-
-(def renderer (make-renderer {:assemble assemble
-                              :chrome-width-fn (fn [i] (dec i))}))
+(def renderer
+  (reify
+    p/RenderTable
+    (render-table [_ _opts cols data]
+      (cons (str/join "\t" (map escape (map :title cols)))
+            (for [row data]
+              (str/join "\t"
+                        (for [col cols]
+                          (-> ((:key-fn col) row)
+                              (p/render-cell col)
+                              escape))))))))
