@@ -1,10 +1,10 @@
 (ns crockery.gfm
-  (:require [clojure.string :as str]
-            [crockery.fixed :refer [make-renderer
-                                    aligned-th
-                                    aligned-td]]))
+  (:require
+   [clojure.string :as str]
+   [crockery.fixed :refer [make-renderer
+                           parse-format]]))
 
-(defn delimiter [{:keys [width align] :as colspec}]
+(defn delimiter [{:keys [width align] :as _colspec}]
   (let [cfirst (case align
                  :left ":"
                  :center ":"
@@ -17,17 +17,16 @@
          (apply str (repeat width "-"))
          clast)))
 
-(defn assemble [colspecs header-row body-rows]
-  (let [spacer (str "|" (str/join "|" (map delimiter colspecs)) "|")]
-    (concat [(str "| " (str/join " | " header-row) " |")
-             spacer]
-            (for [tr body-rows]
-              (str "| " (str/join " | " tr) " |")))))
+(defn add-alignment [colspecs processed]
+  (let [[h _ & body] processed
+        spacer (str "|" (str/join "|" (map delimiter colspecs)) "|")]
+    (cons h (cons spacer body))))
 
 (defn escape-pipe [^String s]
   (str/escape s {\| "\\|"}))
 
-(def renderer (make-renderer {:th aligned-th
-                              :td aligned-td
-                              :assemble assemble
+(def renderer (make-renderer {:chrome (parse-format ["| A | B |"
+                                                     "|---|---|"
+                                                     "| C | D |"])
+                              :postprocess add-alignment
                               :escape escape-pipe}))

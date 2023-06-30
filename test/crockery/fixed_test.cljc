@@ -20,3 +20,59 @@
           {:width 11 :user-width 12 :ellipsis true}]
          (fixed/rebalance-widths [{:width 14 :user-width 14}
                                   {:width 12 :user-width 12}] 21)))))
+
+(deftest test-parse-format
+  (let [chrome {:l "|-"
+                :m "-|-"
+                :r "-|"
+                :x "-"}
+        data {:l "| "
+              :m " | "
+              :r " |"
+              :x " "}]
+    (let [input-format ["|---|---|"
+                        "| A | B |"
+                        "| C | D |"
+                        "| E | F |"
+                        "|---|---|"]]
+      (is (= {:table-top chrome
+              :header data
+              :header-separator nil
+              :data data
+              :data-separator   nil
+              :table-bottom chrome}
+             (fixed/parse-format input-format))))
+    (let [input-format ["|---|---|"
+                        "| A | B |"
+                        "| C | D |"
+                        "|---|---|"
+                        "| E | F |"
+                        "|---|---|"]]
+      (is (= {:table-top chrome
+              :header data
+              :header-separator nil
+              :data data
+              :data-separator chrome
+              :table-bottom chrome}
+             (fixed/parse-format input-format))))
+    (let [input-format ["|---|---|"
+                        "| A | B |"
+                        "|---|---|"
+                        "| C | D |"
+                        "|---|---|"]]
+      (is (= {:table-top chrome
+              :header data
+              :header-separator chrome
+              :data data
+              :data-separator nil
+              :table-bottom chrome}
+             (fixed/parse-format input-format))))
+    (let [input-format ["| A | B |"
+                        "| C | D |"]]
+      (is (= {:table-top nil
+              :header data
+              :header-separator nil
+              :data data
+              :data-separator nil
+              :table-bottom nil}
+             (fixed/parse-format input-format))))))

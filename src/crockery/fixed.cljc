@@ -1,8 +1,52 @@
 (ns crockery.fixed
-  (:require [crockery.protocols :as p]
-            [crockery.strings :as strings]
-            [crockery.util :refer [align-cell]]
-            #?(:clj [crockery.terminal :as term])))
+  (:require
+   [clojure.string :as str]
+   [crockery.protocols :as p]
+   [crockery.strings :as strings]
+   [crockery.util :refer [align-cell]]
+   #?(:clj [crockery.terminal :as term])))
+
+(defn- find-coords [lines char1 char2]
+  (first (keep-indexed
+          (fn [i line]
+            (when-let [x (str/index-of line char1)]
+              (when-let [y (str/index-of line char2)]
+                [i x y])))
+          lines)))
+
+(defn- extract [line x y]
+  {:l (subs line 0 x)
+   :m (subs line (inc x) y)
+   :r (subs line (inc y))
+   :x (subs line x (inc x))})
+
+(defn parse-format [s]
+  (let [lines (vec (if (string? s) (str/split-lines s) s))
+        _ (assert (apply = (map count lines)) "All lines must be equal length")
+        [header-line a b] (find-coords lines "A" "B")
+        [data-line c d] (find-coords lines "C" "D")
+        [more-data-line _ _] (find-coords lines "E" "F")]
+    (if header-line
+      (do
+        (assert (#{0 1} header-line) "Header must be in first 2 lines")
+        (assert (#{1 2} (- data-line header-line)) "Data is too many lines away from header"))
+      (assert (#{0 1} data-line) "Data or header must be in first 2 lines"))
+    {:table-top (when (= 1 header-line)
+                  (extract (nth lines 0) a b))
+     :header (when header-line
+               (assoc
+                (extract (nth lines header-line) a b)
+                :x " "))
+     :header-separator (when (and header-line (> (- data-line header-line) 1))
+                         (extract (nth lines (inc header-line)) a b))
+     :data (assoc (extract (nth lines data-line) c d)
+                  :x " ")
+     :data-separator (when (and more-data-line
+                                (> (- more-data-line data-line) 1))
+                       (extract (nth lines (inc data-line)) c d))
+     :table-bottom (when (> (count lines)
+                            (inc (or more-data-line data-line)))
+                     (extract (last lines) c d))}))
 
 (defn maximum
   ([] 0)
@@ -48,7 +92,17 @@
              (next remaining)
              (- remaining-width (:width new-col)))))))))
 
-(defrecord FixedWidthRender [th td assemble escape chrome-width-fn]
+(defn th [col s]
+  (align-cell col
+              s
+              (:title-align col)))
+
+(defn td [col s]
+  (align-cell col
+              s
+              (:align col)))
+
+(defrecord FixedWidthRender [escape chrome chrome-width postprocess]
   p/RenderTable
   (render-table [_ opts cols data]
     (let [cell-fns (into []
@@ -57,7 +111,6 @@
                                       render-cell (:render-cell col)]
                                   #(-> % key-fn render-cell escape))))
                          cols)
-          chrome-width (chrome-width-fn (count cols))
           max-width (or (:max-width opts)
                         #?(:clj (term/detect-terminal-width))
                         #_200) ;; TODO should this default?
@@ -68,26 +121,35 @@
                             (cell-fn row)))
           colspecs (columns-with-widths cols (cons rendered-headers rendered-rows))
           colspecs (if max-width
-                     (rebalance-widths colspecs (- max-width chrome-width))
-                     colspecs)]
-      (assemble colspecs
-                (map th colspecs rendered-headers)
-                (for [row rendered-rows]
-                  (map td colspecs row))))))
+                     (rebalance-widths colspecs (- max-width (chrome-width (count cols))))
+                     colspecs)
+          top        (when-let [{:keys [l m r x]} (:table-top chrome)]
+                       (str l (str/join m (map #(apply str (repeat (:width %) x)) colspecs)) r))
+          header     (when-let [{:keys [l m r]} (:header chrome)]
+                       (str l (str/join m (map th colspecs rendered-headers)) r))
+          header-sep (when-let [{:keys [l m r x]} (:header-separator chrome)]
+                       (str l (str/join m (map #(apply str (repeat (:width %) x)) colspecs)) r))
+          data-lines (if (:data-separator chrome)
+                       []
+                       (let [{:keys [l m r]} (:data chrome)]
+                         (for [row rendered-rows]
+                           (str l (str/join m (map td colspecs row)) r))))
+          bottom     (when-let [{:keys [l m r x]} (:table-bottom chrome)]
+                       (str l (str/join m (map #(apply str (repeat (:width %) x)) colspecs)) r))]
+      (->> (concat [top header header-sep]
+                   data-lines
+                   [bottom])
+           (remove nil?)
+           (postprocess colspecs)))))
 
-(defn aligned-th [col s]
-  (align-cell col
-              s
-              (:title-align col)))
-
-(defn aligned-td [col s]
-  (align-cell col
-              s
-              (:align col)))
-
-(defn make-renderer [{:keys [td th assemble escape chrome-width-fn]}]
-  (map->FixedWidthRender {:td (or td (fn [_ s] s))
-                          :th (or th (fn [_ s] s))
-                          :escape (comp strings/escape (or escape identity))
-                          :assemble assemble
-                          :chrome-width-fn (or chrome-width-fn (fn [i] (+ 4 (* 3 (dec i)))))}))
+(defn make-renderer [{:keys [chrome escape postprocess]}]
+  (let [chrome-data (:data chrome)
+        sides (+ (count (:l chrome-data))
+                 (count (:r chrome-data)))
+        mid (count (:m chrome-data))
+        chrome-width-fn (fn [cols]
+                          (+ sides (* (dec cols) mid)))]
+    (map->FixedWidthRender {:escape (comp strings/escape (or escape identity))
+                            :chrome chrome
+                            :chrome-width chrome-width-fn
+                            :postprocess (or postprocess (fn [_ lines] lines))})))
