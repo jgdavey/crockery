@@ -2,6 +2,7 @@
   (:require [crockery.org :as org]
             [crockery.fancy :as fancy]
             [crockery.gfm :as gfm]
+            [crockery.simple :as simple]
             [crockery.tsv :as tsv]
             [crockery.protocols :as p]
             [crockery.util :refer [to-column-map normalize-column data->cols-rows]]))
@@ -11,8 +12,13 @@
 
 (defn builtin-renderers []
   {:org org/renderer
-   :fancy fancy/renderer
+   :fancy fancy/fancy
+   :fancy-grid fancy/fancy-grid
    :gfm gfm/renderer
+   :simple simple/simple
+   :plain simple/plain
+   :presto simple/presto
+   :grid simple/grid
    :tsv tsv/renderer})
 
 (defn table

@@ -129,11 +129,14 @@
                        (str l (str/join m (map th colspecs rendered-headers)) r))
           header-sep (when-let [{:keys [l m r x]} (:header-separator chrome)]
                        (str l (str/join m (map #(apply str (repeat (:width %) x)) colspecs)) r))
-          data-lines (if (:data-separator chrome)
-                       []
-                       (let [{:keys [l m r]} (:data chrome)]
-                         (for [row rendered-rows]
-                           (str l (str/join m (map td colspecs row)) r))))
+          data-lines (let [{dl :l dm :m dr :r} (:data chrome)
+                           data-rows (for [row rendered-rows]
+                                       (str dl (str/join dm (map td colspecs row)) dr))]
+                       (if (:data-separator chrome)
+                         (let [{:keys [l m r x]} (:data-separator chrome)
+                               sep (str l (str/join m (map #(apply str (repeat (:width %) x)) colspecs)) r)]
+                           (interpose sep data-rows))
+                         data-rows))
           bottom     (when-let [{:keys [l m r x]} (:table-bottom chrome)]
                        (str l (str/join m (map #(apply str (repeat (:width %) x)) colspecs)) r))]
       (->> (concat [top header header-sep]

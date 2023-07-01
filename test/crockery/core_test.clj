@@ -269,6 +269,45 @@
                   (table-as-string cols data))
                 expected))))
 
+(deftest test-other-formats
+  true
+  (let [data [{:name "Alice" :age 42}
+              {:name "Bob"   :age 27}]
+        cols [:name
+              {:name :age :width 5 :align :right}]]
+    (is (table? (table-as-string {:format :fancy} cols data)
+                ["┌───────┬───────┐"
+                 "│ Name  │   Age │"
+                 "├───────┼───────┤"
+                 "│ Alice │    42 │"
+                 "│ Bob   │    27 │"
+                 "└───────┴───────┘"]))
+    (is (table? (table-as-string {:format :fancy-grid} cols data)
+                ["┌───────┬───────┐"
+                 "│ Name  │   Age │"
+                 "├───────┼───────┤"
+                 "│ Alice │    42 │"
+                 "├───────┼───────┤"
+                 "│ Bob   │    27 │"
+                 "└───────┴───────┘"]))
+    (is (table? (table-as-string {:format :grid} cols data)
+                ["+-------+-------+"
+                 "| Name  |   Age |"
+                 "+=======+=======+"
+                 "| Alice |    42 |"
+                 "+-------+-------+"
+                 "| Bob   |    27 |"
+                 "+-------+-------+"]))
+    (is (table? (table-as-string {:format :simple} cols data)
+                ["Name     Age"
+                 "-----  -----"
+                 "Alice     42"
+                 "Bob       27"]))
+    (is (table? (table-as-string {:format :plain} cols data)
+                ["Name     Age"
+                 "Alice     42"
+                 "Bob       27"]))))
+
 (deftest test-tsv-format
   (let [data [{:q "When?" :a "tomorrow\t9pm"}
               {:q "Who?"  :a (reify p/RenderCell
