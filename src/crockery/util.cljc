@@ -8,7 +8,7 @@
   (let [width (:width col)
         s (str s)
         s (cond (<= (count s) width) s
-                (:ellipsis col) (str (subs s 0 (- width 3)) "...")
+                (:ellipsis col) (str (subs s 0 (max 0 (- width 3))) "...")
                 :else (subs s 0 width))
         len (count s)
         padding (- width len)]
