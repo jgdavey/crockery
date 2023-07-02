@@ -1,27 +1,37 @@
 (ns crockery.simple
-  (:require [crockery.fixed :refer [make-renderer
-                                    parse-format]]))
+  (:require
+   [crockery.fixed #?(:cljs :refer-macros
+                      :clj :refer) [deffixed]]
+   [clojure.string :as str]))
 
-(def plain
-  (make-renderer {:chrome (parse-format ["A  B"
-                                         "C  D"
-                                         ])}))
+(deffixed plain
+  ["A  B"
+   "C  D"])
 
-(def simple
-  (make-renderer {:chrome (parse-format ["A  B"
-                                         "-  -"
-                                         "C  D"])}))
+(deffixed simple
+  ["A  B"
+   "-  -"
+   "C  D"])
 
-(def presto
-  (make-renderer {:chrome (parse-format [" A | B "
-                                         "---|---"
-                                         " C | D "])}))
+(deffixed presto
+  [" A | B "
+   "---|---"
+   " C | D "])
 
-(def grid
-  (make-renderer {:chrome (parse-format ["+---+---+"
-                                         "| A | B |"
-                                         "+===+===+"
-                                         "| C | D |"
-                                         "+---+---+"
-                                         "| E | F |"
-                                         "+---+---+"])}))
+(deffixed grid
+  ["+---+---+"
+   "| A | B |"
+   "+===+===+"
+   "| C | D |"
+   "+---+---+"
+   "| E | F |"
+   "+---+---+"])
+
+(deffixed org
+  ["|---+---|"
+   "| A | B |"
+   "|---+---|"
+   "| C | D |"
+   "|---+---|"]
+  :escape #(str/escape % {\| "\\vert{}"}))
+

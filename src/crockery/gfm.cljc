@@ -1,8 +1,8 @@
 (ns crockery.gfm
   (:require
    [clojure.string :as str]
-   [crockery.fixed :refer [make-renderer
-                           parse-format]]))
+   [crockery.fixed #?(:cljs :refer-macros
+                      :clj :refer) [deffixed]]))
 
 (defn delimiter [{:keys [width align] :as _colspec}]
   (let [cfirst (case align
@@ -25,8 +25,9 @@
 (defn escape-pipe [^String s]
   (str/escape s {\| "\\|"}))
 
-(def renderer (make-renderer {:chrome (parse-format ["| A | B |"
-                                                     "|---|---|"
-                                                     "| C | D |"])
-                              :postprocess add-alignment
-                              :escape escape-pipe}))
+(deffixed gfm
+  ["| A | B |"
+   "|---|---|"
+   "| C | D |"]
+  :postprocess add-alignment
+  :escape escape-pipe)

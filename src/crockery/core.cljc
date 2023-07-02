@@ -1,6 +1,5 @@
 (ns crockery.core
-  (:require [crockery.org :as org]
-            [crockery.fancy :as fancy]
+  (:require [crockery.fancy :as fancy]
             [crockery.gfm :as gfm]
             [crockery.simple :as simple]
             [crockery.tsv :as tsv]
@@ -11,10 +10,10 @@
                                   :defaults {:align :left}})
 
 (defn builtin-renderers []
-  {:org org/renderer
+  {:org simple/org
    :fancy fancy/fancy
    :fancy-grid fancy/fancy-grid
-   :gfm gfm/renderer
+   :gfm gfm/gfm
    :simple simple/simple
    :plain simple/plain
    :presto simple/presto
@@ -66,8 +65,9 @@
   argument itself.
 
       :format       Can either be one of the built-in formatters
-                    by key (:org, :tsv, :gfm, :fancy), or
-                    anything that implements crockery.protocols/RenderTable.
+                    by key, e.g.  (:org, :tsv, :gfm, :fancy), or
+                    anything that implements
+                    crockery.protocols/RenderTable.
 
       :defaults     Column defaults to be used when not provided
                     in an individual column's colspec.

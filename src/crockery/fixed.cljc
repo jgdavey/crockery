@@ -156,3 +156,16 @@
                             :chrome chrome
                             :chrome-width chrome-width-fn
                             :postprocess (or postprocess (fn [_ lines] lines))})))
+
+(defmacro deffixed [sym format & {:keys [escape postprocess]}]
+  (let [docstring (str "Format according to the following format spec:\n\n"
+                       (if (string? format)
+                         format
+                         (str/join "\n" format)))]
+    `(let [format# ~format]
+       (def ~sym
+         ~docstring
+         (make-renderer
+          {:escape ~escape
+           :postprocess ~postprocess
+           :chrome (parse-format format#)})))))
