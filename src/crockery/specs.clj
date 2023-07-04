@@ -43,7 +43,11 @@
                       (reify p/RenderTable
                        (render-table [_ _ _ _] [""])))))
 
-(s/def ::format (s/or :built-in #{:org :fancy :gfm :tsv}
+(def builtin-formats (-> (crock/builtin-renderers)
+                         keys
+                         set))
+
+(s/def ::format (s/or :built-in builtin-formats
                       :custom ::renderer))
 
 (s/def ::defaults (s/keys :opt-un [::align

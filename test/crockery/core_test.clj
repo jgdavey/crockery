@@ -30,7 +30,6 @@
              {:name "Bob" :age 22 :joined #inst "2020-10-29"}
              {:name "Charlotte" :age 42 :joined #inst "2014-04-17T12:34:56.789-00:00"}])
 
-
 (deftest test-table-no-options
   (let [rendered (table-as-string people)]
     (is (table? rendered

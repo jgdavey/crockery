@@ -11,13 +11,21 @@
 
 (defn builtin-renderers []
   {:org simple/org
+   :double fancy/double
+   :double-grid fancy/double-grid
    :fancy fancy/fancy
    :fancy-grid fancy/fancy-grid
    :gfm gfm/gfm
-   :simple simple/simple
+   :grid simple/grid
+   :heavy fancy/heavy
+   :heavy-grid fancy/heavy-grid
+   :mixed-grid fancy/mixed-grid
    :plain simple/plain
    :presto simple/presto
-   :grid simple/grid
+   :rounded fancy/rounded
+   :rounded-grid fancy/rounded-grid
+   :rst simple/rst
+   :simple simple/simple
    :tsv tsv/renderer})
 
 (defn table
