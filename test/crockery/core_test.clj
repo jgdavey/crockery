@@ -175,6 +175,44 @@
                    "| Charlotte            |  42   |"
                    "|----------------------+-------|"])))))
 
+(deftest test-decimal-alignment
+  (let [people-with-decimals (-> people
+                                 (assoc-in [0 :amount] 12.3)
+                                 (assoc-in [1 :amount] 4.56)
+                                 (assoc-in [2 :amount] 78))]
+    (testing "Decimal alignment uses decimal point for an anchor"
+      (let [rendered (table-as-string [{:key-fn :name
+                                        :title "First Name"
+                                        :align :left
+                                        :title-align :center
+                                        :width 20}
+                                       {:name :amount
+                                        :align :decimal}]
+                                      people-with-decimals)]
+        (is (table? rendered
+                    ["|----------------------+--------|"
+                     "|      First Name      | Amount |"
+                     "|----------------------+--------|"
+                     "| Alice                | 12.3   |"
+                     "| Bob                  |  4.56  |"
+                     "| Charlotte            | 78     |"
+                     "|----------------------+--------|"])))
+      (let [rendered (table-as-string {:max-width 25}
+                                      [{:key-fn :name
+                                        :title "First Name"}
+                                       {:name :amount
+                                        :align :decimal}]
+                                      people-with-decimals)]
+        (is (table? rendered
+                    ["|------------+--------|"
+                     "| First Name | Amount |"
+                     "|------------+--------|"
+                     "| Alice      | 12.3   |"
+                     "| Bob        |  4.56  |"
+                     "| Charlotte  | 78     |"
+                     "|------------+--------|"]))))))
+
+
 (deftest test-escaping
   (let [rendered (table-as-string [:a :b] [{:a "foo\nbar" :b "what\tever"}])]
     (is (table? rendered

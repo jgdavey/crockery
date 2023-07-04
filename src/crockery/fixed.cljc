@@ -52,21 +52,39 @@
   ([] 0)
   ([x] x)
   ([a b]
-      (cond
-        (nil? b) a
-        (> b a) b
-        :else a)))
+   (cond
+     (nil? b) a
+     (> b a) b
+     :else a)))
 
 (defn calculate-width [rows]
   (transduce (map count) maximum 0 rows))
 
 (defn columns-with-widths [cols pre-rendered]
   (map-indexed
-   (fn [i {:keys [width] :as col}]
-     (assoc col
-            :user-width width
-            :width (or width
-                       (calculate-width (map #(nth % i) pre-rendered)))))
+   (fn [i col]
+     (let [decimal-info (when (= :decimal (:align col))
+                          (reduce
+                           (fn [acc row]
+                             (let [cell (nth row i)
+                                   len (or (count cell) 0)
+                                   pos (or (str/index-of cell ".") len)]
+                               (doto
+                                (-> acc
+                                    (update :pre max pos)
+                                    (update :post max (- len pos)))
+                                 (tap>))))
+                           {:pre 0 :post 0}
+                           (rest pre-rendered)))
+           width (or (:width col)
+                     (when (:post decimal-info)
+                       (max (count (nth (first pre-rendered) i))
+                            (+ (:pre decimal-info) (:post decimal-info))))
+                     (calculate-width (map #(nth % i) pre-rendered)))]
+       (assoc col
+              :decimal-info decimal-info
+              :user-width (:width col)
+              :width width)))
    cols))
 
 (defn rebalance-widths [colspecs chromeless-max-width]

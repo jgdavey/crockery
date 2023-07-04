@@ -13,15 +13,8 @@
                                :ret string?))
 (s/def ::title string?)
 (s/def ::title-align #{:left :center :right})
-(s/def ::align #{:left :center :right})
+(s/def ::align #{:left :center :right :decimal})
 (s/def ::ellipsis boolean?)
-
-(s/def ::colspec (s/keys :req-un [::key-fn
-                                  ::title
-                                  ::title-align
-                                  ::align
-                                  ::when]
-                         :opt-un [::ellipsis]))
 
 (s/def ::name keyword?)
 (s/def ::col-arg-map (s/keys :req-un [(or ::name ::key-fn)]

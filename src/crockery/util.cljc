@@ -1,5 +1,7 @@
 (ns crockery.util
-  (:require [crockery.protocols :as p]))
+  (:require
+   [crockery.protocols :as p]
+   [clojure.string :as str]))
 
 (defn- pad-spaces [n]
   (apply str (repeat n " ")))
@@ -13,6 +15,13 @@
         len (count s)
         padding (- width len)]
     (case align
+      :decimal (let [[a b] (str/split s #"\." 2)
+                     d (if b (str "." b) "")
+                     pre (get-in col [:decimal-info :pre] 0)]
+                 (str (pad-spaces (- pre (count a)))
+                      a
+                      d
+                      (pad-spaces (- width pre (count d)))))
       :left (str s (pad-spaces padding))
       :right (str (pad-spaces padding) s)
       :center (let [half-padding (/ padding 2)]
@@ -50,13 +59,14 @@
      [{:value data}]]))
 
 (defn normalize-column [{:keys [key-fn title title-align align render-title render-cell] :as col}]
-  (let [nm (:name col)]
+  (let [nm (:name col)
+        align (keyword (or align :left))]
     (merge col
-           {:align (keyword (or align :left))
+           {:align align
             :key-fn (or key-fn #(get % nm))
             :render-cell (or render-cell p/render-cell*)
             :title (or title ((or render-title p/render-title*) (or nm key-fn)))
-            :title-align (keyword (or title-align align :left))
+            :title-align (keyword (or title-align (#{:right :left :center} align) :left))
             :when (:when col true)})))
 
 (defn to-column-map [col]

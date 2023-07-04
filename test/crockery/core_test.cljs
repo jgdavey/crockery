@@ -36,6 +36,29 @@
              (crock/table cols data))
            expected))))
 
+(deftest test-decimal-alignment
+  (let [people-with-decimals (-> people
+                                 (assoc-in [0 :amount] 12.3)
+                                 (assoc-in [1 :amount] 4.56)
+                                 (assoc-in [2 :amount] 78))]
+    (testing "Decimal alignment uses decimal point for an anchor"
+      (let [rendered (crock/table [{:key-fn :name
+                                    :title "First Name"
+                                    :align :left
+                                    :title-align :center
+                                    :width 20}
+                                   {:name :amount
+                                    :align :decimal}]
+                                  people-with-decimals)]
+        (is (= rendered
+               ["|----------------------+--------|"
+                "|      First Name      | Amount |"
+                "|----------------------+--------|"
+                "| Alice                | 12.3   |"
+                "| Bob                  |  4.56  |"
+                "| Charlotte            | 78     |"
+                "|----------------------+--------|"]))))))
+
 (deftest test-tsv-format
   (let [data [{:q "When?" :a "tomorrow\t9pm"}
               {:q "Who?"  :a (reify p/RenderCell
