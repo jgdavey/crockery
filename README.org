@@ -34,18 +34,24 @@ Require =crockery.core=, which contains the primary API:
 (require '[crockery.core :as crockery])
 #+end_src
 
+#+RESULTS:
+#+begin_example
+#+end_example
+
 The examples that follow use this data:
 
 #+begin_src clojure :exports code :results value
 (def people
-  [{:first-name "Alice", :last-name "Anderson", :age 32}
-   {:first-name "Bob", :last-name "Bobberson", :age 29},
-   {:first-name "Carol", :last-name "Carola", :age 26},
-   {:first-name "Doug", :last-name "Duggler", :age 41}])
+  [{:first-name "Alice", :last-name "Anderson", :age 32, :dues "98.00"}
+   {:first-name "Bob", :last-name "Bobberson", :age 29, :dues "17"},
+   {:first-name "Carol", :last-name "Carola", :age 26, :dues "105.50"},
+   {:first-name "Doug", :last-name "Duggler", :age 41, :dues "0.125"}])
 #+end_src
 
 #+RESULTS:
-: #'user/people
+#+begin_example
+#'user/people
+#+end_example
 
 Print a table, inferring column names from the first map of the collection:
 
@@ -55,14 +61,14 @@ Print a table, inferring column names from the first map of the collection:
 
 #+RESULTS:
 #+begin_example
-|------------+-----------+-----|
-| First Name | Last Name | Age |
-|------------+-----------+-----|
-| Alice      | Anderson  | 32  |
-| Bob        | Bobberson | 29  |
-| Carol      | Carola    | 26  |
-| Doug       | Duggler   | 41  |
-|------------+-----------+-----|
+|------------+-----------+-----+--------|
+| First Name | Last Name | Age | Dues   |
+|------------+-----------+-----+--------|
+| Alice      | Anderson  | 32  | 98.00  |
+| Bob        | Bobberson | 29  | 17     |
+| Carol      | Carola    | 26  | 105.50 |
+| Doug       | Duggler   | 41  | 0.125  |
+|------------+-----------+-----+--------|
 #+end_example
 
 Or, specify the columns you want included:
@@ -181,6 +187,29 @@ One of =#{:left :center :right}=, defaults to =:left=. Affects the
 data rows. When no =:title-align= is specified, also affects the
 header.
 
+One special alignment, =:decimal=, attempts to line up the column so
+that the decimal point is in the same place in each row:
+
+#+begin_src clojure
+(crockery/print-table [:first-name :last-name {:name :dues :align :decimal}] people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+|------------+-----------+---------|
+| First Name | Last Name | Dues    |
+|------------+-----------+---------|
+| Alice      | Anderson  |  98.00  |
+| Bob        | Bobberson |  17     |
+| Carol      | Carola    | 105.50  |
+| Doug       | Duggler   |   0.125 |
+|------------+-----------+---------|
+#+end_example
+
+Since numbers are printed as strings, in reality, the decimal
+alignment just looks for the first decimal point as an alignment
+anchor.
+
 *** :title
 
 Provide your own header title rather than titleizing the =:name= parameter.
@@ -217,50 +246,240 @@ You can specify the format with the =:format= key in the options map,
 either before other arguments, or globally by rebinding the
 =crockery.core/*default-options*= var.
 
-*** :org
+For each of these formats, the following colspec will be used:
 
-This is the default format. See any of the above examples.
-
-*** :fancy
-
-This format uses unicode pipe characters.
-
-#+begin_src clojure
-(crockery/print-table {:format :fancy}
-                      [:last-name {:name :first-name, :title "Given name"}]
-                      people)
+#+begin_src clojure :exports code :results value
+(def colspec [:last-name
+              {:name :first-name
+               :title "Given name"
+               :align :right}
+              :age])
 #+end_src
 
 #+RESULTS:
 #+begin_example
-┌───────────┬────────────┐
-│ Last Name │ Given name │
-├───────────┼────────────┤
-│ Anderson  │ Alice      │
-│ Bobberson │ Bob        │
-│ Carola    │ Carol      │
-│ Duggler   │ Doug       │
-└───────────┴────────────┘
+#'user/colspec
+#+end_example
+
+*** :org
+
+This is the default format. See any of the above examples.
+
+*** :plain
+
+A fixed-width, unadorned output format.
+
+#+begin_src clojure
+(crockery/print-table {:format :plain} colspec people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Last Name  Given name  Age
+Anderson        Alice  32 
+Bobberson         Bob  29 
+Carola          Carol  26 
+Duggler          Doug  41 
+#+end_example
+
+*** :simple
+
+#+begin_src clojure
+(crockery/print-table {:format :simple} colspec people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Last Name  Given name  Age
+---------  ----------  ---
+Anderson        Alice  32 
+Bobberson         Bob  29 
+Carola          Carol  26 
+Duggler          Doug  41 
+#+end_example
+
+*** :grid
+
+#+begin_src clojure
+(crockery/print-table {:format :grid} colspec people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
++-----------+------------+-----+
+| Last Name | Given name | Age |
++===========+============+=====+
+| Anderson  |      Alice | 32  |
++-----------+------------+-----+
+| Bobberson |        Bob | 29  |
++-----------+------------+-----+
+| Carola    |      Carol | 26  |
++-----------+------------+-----+
+| Duggler   |       Doug | 41  |
++-----------+------------+-----+
+#+end_example
+
+*** :presto
+
+Another fixed-width format, with no surrounding border.
+
+#+begin_src clojure
+(crockery/print-table {:format :presto} colspec people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+ Last Name | Given name | Age 
+-----------|------------|-----
+ Anderson  |      Alice | 32  
+ Bobberson |        Bob | 29  
+ Carola    |      Carol | 26  
+ Duggler   |       Doug | 41  
+#+end_example
+
+
+*** :rst
+
+Based on the reStructured Text table format.
+
+#+begin_src clojure
+(crockery/print-table {:format :rst} colspec people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+=========  ==========  ===
+Last Name  Given name  Age
+=========  ==========  ===
+Anderson        Alice  32 
+Bobberson         Bob  29 
+Carola          Carol  26 
+Duggler          Doug  41 
+=========  ==========  ===
+#+end_example
+*** :fancy
+
+This format uses unicode pipe characters. =:fancy-grid= is also
+available if you'd like separators between data rows.
+
+#+begin_src clojure
+(crockery/print-table {:format :fancy} colspec people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+┌───────────┬────────────┬─────┐
+│ Last Name │ Given name │ Age │
+├───────────┼────────────┼─────┤
+│ Anderson  │      Alice │ 32  │
+│ Bobberson │        Bob │ 29  │
+│ Carola    │      Carol │ 26  │
+│ Duggler   │       Doug │ 41  │
+└───────────┴────────────┴─────┘
+#+end_example
+
+*** :rounded
+
+Like =:fancy=, but with bolder lines. =:heavy-grid= is also
+available if you'd like separators between data rows.
+
+#+begin_src clojure
+(crockery/print-table {:format :heavy} colspec people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+┏━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━┓
+┃ Last Name ┃ Given name ┃ Age ┃
+┣━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━┫
+┃ Anderson  ┃      Alice ┃ 32  ┃
+┃ Bobberson ┃        Bob ┃ 29  ┃
+┃ Carola    ┃      Carol ┃ 26  ┃
+┃ Duggler   ┃       Doug ┃ 41  ┃
+┗━━━━━━━━━━━┻━━━━━━━━━━━━┻━━━━━┛
+#+end_example
+
+*** :rounded
+
+Like =:fancy=, but with rounded corners. =:rounded-grid= is also
+available if you'd like separators between data rows.
+
+#+begin_src clojure
+(crockery/print-table {:format :rounded} colspec people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+╭───────────┬────────────┬─────╮
+│ Last Name │ Given name │ Age │
+├───────────┼────────────┼─────┤
+│ Anderson  │      Alice │ 32  │
+│ Bobberson │        Bob │ 29  │
+│ Carola    │      Carol │ 26  │
+│ Duggler   │       Doug │ 41  │
+╰───────────┴────────────┴─────╯
+#+end_example
+*** :double
+
+Like =:fancy=, but with rounded corners. =:double-grid= is also
+available if you'd like separators between data rows.
+
+#+begin_src clojure
+(crockery/print-table {:format :double} colspec people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+╔═══════════╦════════════╦═════╗
+║ Last Name ║ Given name ║ Age ║
+╠═══════════╬════════════╬═════╣
+║ Anderson  ║      Alice ║ 32  ║
+║ Bobberson ║        Bob ║ 29  ║
+║ Carola    ║      Carol ║ 26  ║
+║ Duggler   ║       Doug ║ 41  ║
+╚═══════════╩════════════╩═════╝
+#+end_example
+
+*** :mixed-grid
+
+Like =:fancy-grid=, but with bolder separators between the header and body rows.
+
+#+begin_src clojure
+(crockery/print-table {:format :mixed-grid} colspec people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+┍━━━━━━━━━━━┯━━━━━━━━━━━━┯━━━━━┑
+│ Last Name │ Given name │ Age │
+┝━━━━━━━━━━━┿━━━━━━━━━━━━┿━━━━━┥
+│ Anderson  │      Alice │ 32  │
+├───────────┼────────────┼─────┤
+│ Bobberson │        Bob │ 29  │
+├───────────┼────────────┼─────┤
+│ Carola    │      Carol │ 26  │
+├───────────┼────────────┼─────┤
+│ Duggler   │       Doug │ 41  │
+┕━━━━━━━━━━━┷━━━━━━━━━━━━┷━━━━━┙
 #+end_example
 
 *** :tsv
 
 This tab-delimited format doesn't look great when printed directly,
 but is convenient for further processing with common unix utils.
+Alignment options are ignored.
 
 #+begin_src clojure
-(crockery/print-table {:format :tsv}
-                      [:last-name {:name :first-name, :title "Given name"}]
-                      people)
+(crockery/print-table {:format :tsv} colspec people)
 #+end_src
 
 #+RESULTS:
 #+begin_example
-Last Name	Given name
-Anderson	Alice
-Bobberson	Bob
-Carola	Carol
-Duggler	Doug
+Last Name	Given name	Age
+Anderson	Alice	32
+Bobberson	Bob	29
+Carola	Carol	26
+Duggler	Doug	41
 #+end_example
 
 *** :gfm
@@ -269,20 +488,17 @@ Github-flavored Markdown (GFM) extends standard Markdown with a table
 syntax, including alignment designators.
 
 #+begin_src clojure
-(crockery/print-table {:format :gfm}
-                      [{:name :last-name, :align :right}
-                       {:name :first-name, :title "Given name"}]
-                      people)
+(crockery/print-table {:format :gfm} colspec people)
 #+end_src
 
 #+RESULTS:
 #+begin_example
-| Last Name | Given name |
-|----------:|:-----------|
-|  Anderson | Alice      |
-| Bobberson | Bob        |
-|    Carola | Carol      |
-|   Duggler | Doug       |
+| Last Name | Given name | Age |
+|:----------|-----------:|:----|
+| Anderson  |      Alice | 32  |
+| Bobberson |        Bob | 29  |
+| Carola    |      Carol | 26  |
+| Duggler   |       Doug | 41  |
 #+end_example
 
 
