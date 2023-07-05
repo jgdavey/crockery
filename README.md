@@ -351,7 +351,7 @@ This format uses unicode pipe characters. `:fancy-grid` is also available if you
 ```
 
 
-### :rounded
+### :heavy
 
 Like `:fancy`, but with bolder lines. `:heavy-grid` is also available if you'd like separators between data rows.
 

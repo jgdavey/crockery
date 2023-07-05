@@ -378,7 +378,7 @@ available if you'd like separators between data rows.
 └───────────┴────────────┴─────┘
 #+end_example
 
-*** :rounded
+*** :heavy
 
 Like =:fancy=, but with bolder lines. =:heavy-grid= is also
 available if you'd like separators between data rows.
