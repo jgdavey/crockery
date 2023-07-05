@@ -5,6 +5,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- New alignment option `:decimal`
+- New fixed-width formats: `:plain`, `:simple`, `:presto`, `:rst`, `:grid`
+- New "fancy" fixed-with formats: `:fancy-grid`, `:rounded`,
+  `:rounded-grid`, `:heavy`, `:heavy-grid`, `:double`, `:double-grid`,
+  `:mixed-grid`
+
+### Changed
+- Some of the format implementation namespaces have been removed.
+  `crockery.org`, which contained the org formatter, in now in the new
+  `crockery.simple` format namespace.
+- Some formatter vars have been renamed. These are mostly an
+  implementation detail, but for completeness:
+
+  | Old var                   | New var                |
+  |---------------------------|------------------------|
+  | `crockery.fancy/renderer` | `crockery.fancy/fancy` |
+  | `crockery.org/renderer`   | `crockery.simple/org`  |
+  | `crockery.gfm/renderer`   | `crockery.gfm/gfm`     |
 
 ## [0.2.0] - 2021-07-12
 ### Added
