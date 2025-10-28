@@ -1,5 +1,5 @@
 {:paths ["src" "resources"]
- :deps {org.clojure/clojure {:mvn/version "1.12.0"}}
+ :deps {org.clojure/clojure {:mvn/version "1.12.3"}}
  :aliases
  {:test {:extra-paths ["test"]
          :extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}}}
@@ -15,6 +15,6 @@
   :test-cljs
   {:extra-deps {olical/cljs-test-runner {:mvn/version "3.8.1"}}
    :main-opts ["-m" "cljs-test-runner.main"]}
-  :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.7" :git/sha "573711e"}
+  :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.10" :git/sha "deedd62"}
                  slipset/deps-deploy {:mvn/version "0.2.2"}}
           :ns-default build}}}
