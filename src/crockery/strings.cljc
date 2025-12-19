@@ -1,5 +1,6 @@
 (ns crockery.strings
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [lambdaisland.ansi :as ansi]))
 
 (defn string #?(:clj {:tag String})
   [elem]
@@ -30,3 +31,9 @@
 
 (defn escape [s]
   (str/escape s escape-map))
+
+(defn strip-ansi [s]
+  (->> s
+       (ansi/token-stream)
+       (filter string?)
+       (apply str)))

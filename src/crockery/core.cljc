@@ -66,6 +66,9 @@
                      Must return a string. Defaults to
                      `crockery.protocols/render-title*`.
 
+      :ignore-ansi?  When true, don't include ANSI escape codes
+                     in the width calculations. Defaults to false
+
   When a map is provided, either `:name` or `:key-fn` is
   required.
 

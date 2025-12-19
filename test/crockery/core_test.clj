@@ -175,6 +175,40 @@
                    "| Charlotte            |  42   |"
                    "|----------------------+-------|"])))))
 
+(deftest test-ansi-escape-sequences
+  (testing "Does not unescape by default"
+    (let [rendered (table-as-string [{:key-fn :name
+                                      :title "Name"}
+                                     {:name :age
+                                      :align :right}]
+                                    (assoc-in people [0 :name]
+                                              "\u001b[37mAlice\u001b[0m"))]
+      (is (table? rendered
+                  ["|----------------+-----|"
+                   "| Name           | Age |"
+                   "|----------------+-----|"
+                   "| \u001b[37mAlice\u001b[0m |  29 |"
+                   "| Bob            |  22 |"
+                   "| Charlotte      |  42 |"
+                   "|----------------+-----|"]))))
+  (testing "Can escape by default"
+    (let [rendered (crock/table {:defaults {:ignore-ansi? true}}
+                                [{:key-fn :name
+                                  :title "Name"}
+                                 {:name :age
+                                  :align :right}]
+                                (assoc-in people [0 :name]
+                                          "\u001b[37mAlice\u001b[0m"))]
+      (is (= (map seq
+                  ["|-----------+-----|"
+                   "| Name      | Age |"
+                   "|-----------+-----|"
+                   "| \u001b[37mAlice\u001b[0m     |  29 |"
+                   "| Bob       |  22 |"
+                   "| Charlotte |  42 |"
+                   "|-----------+-----|"])
+             (map seq rendered))))))
+
 (deftest test-decimal-alignment
   (let [people-with-decimals (-> people
                                  (assoc-in [0 :amount] 12.3)

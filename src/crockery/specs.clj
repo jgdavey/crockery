@@ -15,6 +15,7 @@
 (s/def ::title-align #{:left :center :right})
 (s/def ::align #{:left :center :right :decimal})
 (s/def ::ellipsis boolean?)
+(s/def ::ignore-ansi? boolean?)
 
 (s/def ::name keyword?)
 (s/def ::col-arg-map (s/keys :req-un [(or ::name ::key-fn)]
@@ -26,7 +27,8 @@
                                       ::align
                                       ::title-align
                                       ::when
-                                      ::ellipsis]))
+                                      ::ellipsis
+                                      ::ignore-ansi?]))
 (s/def ::col-arg (s/or :kw keyword?
                        :map ::col-arg-map))
 

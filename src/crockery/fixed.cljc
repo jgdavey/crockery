@@ -57,9 +57,6 @@
      (> b a) b
      :else a)))
 
-(defn calculate-width [rows]
-  (transduce (map count) maximum 0 rows))
-
 (defn columns-with-widths [cols pre-rendered]
   (map-indexed
    (fn [i col]
@@ -69,18 +66,20 @@
                              (let [cell (nth row i)
                                    len (or (count cell) 0)
                                    pos (or (str/index-of cell ".") len)]
-                               (doto
-                                (-> acc
-                                    (update :pre max pos)
-                                    (update :post max (- len pos)))
-                                 (tap>))))
+                               (-> acc
+                                   (update :pre max pos)
+                                   (update :post max (- len pos)))))
                            {:pre 0 :post 0}
                            (rest pre-rendered)))
            width (or (:width col)
                      (when (:post decimal-info)
                        (max (count (nth (first pre-rendered) i))
                             (+ (:pre decimal-info) (:post decimal-info))))
-                     (calculate-width (map #(nth % i) pre-rendered)))]
+                     (transduce (comp (map #(nth % i))
+                                      (if (:ignore-ansi? col)
+                                        (map (fn [s] (count (strings/strip-ansi s))))
+                                        (map count)))
+                                maximum 0 pre-rendered))]
        (assoc col
               :decimal-info decimal-info
               :user-width (:width col)

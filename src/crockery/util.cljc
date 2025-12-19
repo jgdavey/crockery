@@ -1,6 +1,7 @@
 (ns crockery.util
   (:require
    [crockery.protocols :as p]
+   [crockery.strings :as strings]
    [clojure.string :as str]))
 
 (defn- pad-spaces [n]
@@ -8,11 +9,14 @@
 
 (defn align-cell [col s align]
   (let [width (:width col)
-        s (str s)
-        s (cond (<= (count s) width) s
-                (:ellipsis col) (str (subs s 0 (max 0 (- width 3))) "...")
-                :else (subs s 0 width))
-        len (count s)
+        string (str s)
+        plain (if (:ignore-ansi? col)
+                (strings/strip-ansi string)
+                string)
+        len (count plain)
+        [s len] (cond (<= len width) [string len]
+                      (:ellipsis col) [(str (subs plain 0 (max 0 (- width 3))) "...") width]
+                      :else [(subs plain 0 width) width])
         padding (- width len)]
     (case align
       :decimal (let [[a b] (str/split s #"\." 2)
