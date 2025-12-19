@@ -114,6 +114,7 @@
 
   Takes same arguments as `table`, but prints rather than returning
   strings. Returns nil."
+  {:arglists '([data] [cols-or-opts data] [opts cols data])}
   [& args]
   (doseq [line (apply table args)]
     (println line)))
