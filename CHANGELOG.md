@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2025-12-19
+
+- Add new col option `:ignore-ansi?` to exclude ANSI escape sequences
+  from column width calculation
+
 ## [0.3.1] - 2025-10-28
 
 - Fix for bad 0.3.0 release
