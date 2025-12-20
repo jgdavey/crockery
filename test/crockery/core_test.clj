@@ -207,7 +207,23 @@
                    "| Bob       |  22 |"
                    "| Charlotte |  42 |"
                    "|-----------+-----|"])
-             (map seq rendered))))))
+             (map seq rendered)))))
+  (testing "Can escape with bold ANSI"
+    (let [rendered (crock/table {:defaults {:ignore-ansi? true}}
+                                [{:key-fn :name
+                                  :title "Name"}
+                                 {:name :age
+                                  :align :right}]
+                                (assoc-in people [0 :name]
+                                          "\u001b[1mAlice\u001b[0m"))]
+      (is (= ["|-----------+-----|"
+              "| Name      | Age |"
+              "|-----------+-----|"
+              "| \u001b[1mAlice\u001b[0m     |  29 |"
+              "| Bob       |  22 |"
+              "| Charlotte |  42 |"
+              "|-----------+-----|"]
+             rendered)))))
 
 (deftest test-decimal-alignment
   (let [people-with-decimals (-> people

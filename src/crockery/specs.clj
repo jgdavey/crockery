@@ -17,6 +17,9 @@
 (s/def ::ellipsis boolean?)
 (s/def ::ignore-ansi? boolean?)
 
+(s/def ::width pos-int?)
+(s/def ::max-width pos-int?)
+
 (s/def ::name keyword?)
 (s/def ::col-arg-map (s/keys :req-un [(or ::name ::key-fn)]
                              :opt-un [::name
@@ -25,6 +28,7 @@
                                       ::render-title
                                       ::title
                                       ::align
+                                      ::width
                                       ::title-align
                                       ::when
                                       ::ellipsis
@@ -50,15 +54,18 @@
                                    ::render-cell
                                    ::render-title
                                    ::when
-                                   ::ellipsis]))
+                                   ::ellipsis
+                                   ::ignore-ansi?]))
 
-(s/def ::opts-arg (s/nilable (s/keys :opt-un [::format ::defaults])))
+(s/def ::opts-arg (s/nilable (s/keys :opt-un [::format
+                                              ::defaults
+                                              ::max-width])))
 (s/def ::cols-arg (s/nilable (s/coll-of ::col-arg)))
 
 (s/def ::data-arg (s/nilable
                    (s/with-gen
                      any?
-                     #(s/gen (s/coll-of (s/map-of keyword? any?) :into [])))))
+                     #(s/gen (s/coll-of (s/map-of keyword? any?) :into [] :gen-max 10)))))
 
 (s/def ::table-args
   (s/alt

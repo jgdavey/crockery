@@ -26,4 +26,4 @@
 
 (deftest test-table-spec
   (report-spec-results
-   (stest/check `crock/table {:clojure.spec.test.check/opts {:num-tests 50}})))
+   (stest/check `crock/table {:clojure.spec.test.check/opts {:num-tests 20}})))

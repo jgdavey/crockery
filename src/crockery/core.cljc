@@ -52,6 +52,8 @@
                      align the text in the rows for this
                      column. Defaults to `:left`.
 
+      :width         Specify a fixed width for the column.
+
       :title-align   Similar to `:align`, but for the header
                      of the column. When not specified, will
                      use the value of `:align`.
