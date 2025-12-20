@@ -122,7 +122,8 @@
 (defrecord FixedWidthRender [escape chrome chrome-width postprocess]
   p/RenderTable
   (render-table [_ opts cols data]
-    (let [cell-fns (into []
+    (let [titles? (:titles? opts)
+          cell-fns (into []
                          (map (fn [col]
                                 (let [key-fn (:key-fn col)
                                       render-cell (:render-cell col)]
@@ -131,20 +132,22 @@
           max-width (or (:max-width opts)
                         #?(:clj (term/detect-terminal-width))
                         #_200) ;; TODO should this default?
-          rendered-headers (for [col cols]
-                             (-> col :title escape))
+          rendered-headers (when titles?
+                             (for [col cols]
+                               (-> col :title escape)))
           rendered-rows (for [row data]
                           (for [cell-fn cell-fns]
                             (cell-fn row)))
-          colspecs (columns-with-widths cols (cons rendered-headers rendered-rows))
+          colspecs (columns-with-widths cols (cond->> rendered-rows
+                                               titles? (cons rendered-headers)))
           colspecs (if max-width
                      (rebalance-widths colspecs (- max-width (chrome-width (count cols))))
                      colspecs)
           top        (when-let [{:keys [l m r x]} (:table-top chrome)]
                        (str l (str/join m (map #(apply str (repeat (:width %) x)) colspecs)) r))
-          header     (when-let [{:keys [l m r]} (:header chrome)]
+          header     (when-let [{:keys [l m r]} (and titles? (:header chrome))]
                        (str l (str/join m (map th colspecs rendered-headers)) r))
-          header-sep (when-let [{:keys [l m r x]} (:header-separator chrome)]
+          header-sep (when-let [{:keys [l m r x]} (and titles? (:header-separator chrome))]
                        (str l (str/join m (map #(apply str (repeat (:width %) x)) colspecs)) r))
           data-lines (let [{dl :l dm :m dr :r} (:data chrome)
                            data-rows (for [row rendered-rows]

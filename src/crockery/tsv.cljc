@@ -6,11 +6,11 @@
 (def renderer
   (reify
     p/RenderTable
-    (render-table [_ _opts cols data]
-      (cons (str/join "\t" (map escape (map :title cols)))
-            (for [row data]
-              (str/join "\t"
-                        (for [col cols]
-                          (-> ((:key-fn col) row)
-                              (p/render-cell col)
-                              escape))))))))
+    (render-table [_ opts cols data]
+      (cond->> (for [row data]
+                 (str/join "\t"
+                           (for [col cols]
+                             (-> ((:key-fn col) row)
+                                 (p/render-cell col)
+                                 escape))))
+        (:titles? opts) (cons (str/join "\t" (map escape (map :title cols))))))))

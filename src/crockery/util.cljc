@@ -62,6 +62,12 @@
     [[:value]
      [{:value data}]]))
 
+(defn normalize-opts [defaults opts]
+  (let [opts' (merge defaults opts)]
+    (if (contains? opts' :titles?)
+      opts'
+      (assoc opts' :titles? true))))
+
 (defn normalize-column [{:keys [key-fn title title-align align render-title render-cell] :as col}]
   (let [nm (:name col)
         align (keyword (or align :left))]
@@ -77,3 +83,17 @@
   (if (map? col)
     col
     {:name col}))
+
+(defn normalize-args
+  "Returns [opts cols data] in normalized formats"
+  [default-options opts cols data]
+  (let [{:keys [defaults] :as opts} (normalize-opts default-options opts)
+        ;;_ (assert (satisfies? p/RenderTable renderer))
+        [detected-cols data] (data->cols-rows data)
+        cols (into [] (comp (map to-column-map)
+                            (map #(merge defaults %))
+                            (map normalize-column))
+                   (or cols
+                       (:columns opts)
+                       detected-cols))]
+    [opts cols data]))

@@ -4,10 +4,11 @@
             [crockery.simple :as simple]
             [crockery.tsv :as tsv]
             [crockery.protocols :as p]
-            [crockery.util :refer [to-column-map normalize-column data->cols-rows]]))
+            [crockery.util :refer [normalize-args]]))
 
 (def ^:dynamic *default-options* {:format :org
-                                  :defaults {:align :left}})
+                                  :defaults {:align :left}
+                                  :titles? true})
 
 (defn builtin-renderers []
   {:org simple/org
@@ -89,6 +90,8 @@
                     printing to a tty terminal. The default is your
                     terminal width, if it can be detected.
 
+      :titles?      Whether to render the title row (default true)
+
   Returns a lazy sequence of strings, each representing a
   printable line."
   ([data]
@@ -99,16 +102,9 @@
                        [nil cols-or-opts])]
      (table opts cols data)))
   ([opts cols data]
-   (let [{:keys [format defaults] :as opts} (merge *default-options* opts)
-         renderer (get (builtin-renderers) format format)
-         ;;_ (assert (satisfies? p/RenderTable renderer))
-         [detected-cols data] (data->cols-rows data)
-         cols (into [] (comp (map to-column-map)
-                             (map #(merge defaults %))
-                             (map normalize-column))
-                    (or cols
-                        (:columns opts)
-                        detected-cols))]
+   (let [[opts cols data] (normalize-args *default-options* opts cols data)
+         {:keys [format]} opts
+         renderer (get (builtin-renderers) format format)]
      (p/render-table renderer opts cols data))))
 
 (defn print-table

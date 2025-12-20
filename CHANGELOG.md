@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add new option `:titles?` (default true) to suppress rendering the
+  title row completely.
+
 ## [0.3.2] - 2025-12-19
 
 - Add new col option `:ignore-ansi?` to exclude ANSI escape sequences

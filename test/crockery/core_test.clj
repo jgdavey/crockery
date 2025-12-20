@@ -281,6 +281,24 @@
                  "| foobar | what... |"
                  "|--------+---------|"]))))
 
+(deftest test-no-titles
+  (let [rendered (table-as-string {:titles? false}
+                                  [:a :b]
+                                  [{:a "foobar" :b "whatever"}])]
+    (is (table? rendered
+                ["|--------+----------|"
+                 "| foobar | whatever |"
+                 "|--------+----------|"])))
+  (testing "does not consider title widths in calculations"
+    (let [rendered (table-as-string {:titles? false}
+                                    [{:key-fn :a :title "The most obnoxious"} :b]
+                                    [{:a "foobar" :b "whatever"}])]
+      (is (table? rendered
+                  ["|--------+----------|"
+                   "| foobar | whatever |"
+                   "|--------+----------|"])))))
+
+
 (deftest test-default-column-options
   (let [rendered (table-as-string {:defaults {:align :center}}
                                   [:a :b]
@@ -396,15 +414,27 @@
                  "Bob       27"]))))
 
 (deftest test-tsv-format
+  (testing "with titles"
+    (let [data [{:q "When?" :a "tomorrow\t9pm"}
+                {:q "Who?"  :a (reify p/RenderCell
+                                 (render-cell [_ _] "No\tAnswer"))}]
+          cols [{:key-fn :q :title "question"} :a]
+          expected ["question\tA"
+                    "When?\ttomorrow\\t9pm"
+                    "Who?\tNo\\tAnswer"]]
+      (is (table? (table-as-string {:format :tsv} cols data) expected))
+      (is (table? (binding [crock/*default-options* {:format :tsv}]
+                    (table-as-string cols data))
+                  expected))))
+  (testing "no titles")
   (let [data [{:q "When?" :a "tomorrow\t9pm"}
               {:q "Who?"  :a (reify p/RenderCell
                                (render-cell [_ _] "No\tAnswer"))}]
         cols [{:key-fn :q :title "question"} :a]
-        expected ["question\tA"
-                  "When?\ttomorrow\\t9pm"
+        expected ["When?\ttomorrow\\t9pm"
                   "Who?\tNo\\tAnswer"]]
-    (is (table? (table-as-string {:format :tsv} cols data) expected))
-    (is (table? (binding [crock/*default-options* {:format :tsv}]
+    (is (table? (table-as-string {:format :tsv :titles? false} cols data) expected))
+    (is (table? (binding [crock/*default-options* {:format :tsv :titles? false}]
                   (table-as-string cols data))
                 expected))))
 

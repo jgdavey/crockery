@@ -16,6 +16,7 @@
 (s/def ::align #{:left :center :right :decimal})
 (s/def ::ellipsis boolean?)
 (s/def ::ignore-ansi? boolean?)
+(s/def ::titles? boolean?)
 
 (s/def ::width pos-int?)
 (s/def ::max-width pos-int?)
@@ -59,6 +60,7 @@
 
 (s/def ::opts-arg (s/nilable (s/keys :opt-un [::format
                                               ::defaults
+                                              ::titles?
                                               ::max-width])))
 (s/def ::cols-arg (s/nilable (s/coll-of ::col-arg)))
 
