@@ -17,7 +17,7 @@ JAR_DEPS=$(EDN_FILES) $(CLJ_FILES)
 TARGET_DIR:=target
 OUTPUT_JAR=$(TARGET_DIR)/com.joshuadavey/crockery-$(VERSION).jar
 
-.PHONY: clean deploy test test-clj test-cljs
+.PHONY: clean deploy test test-clj test-cljs test-bb
 
 .DEFAULT_GOAL:=jar
 
@@ -27,7 +27,10 @@ test-clj:
 test-cljs:
 	clojure -M:test:test-cljs
 
-test: test-cljs test-clj
+test-bb:
+	bb test:bb
+
+test: test-cljs test-clj test-bb
 
 jar: $(OUTPUT_JAR)
 
