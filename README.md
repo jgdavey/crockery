@@ -6,8 +6,9 @@ Print clojure maps as a human-readable table.
 
 1.  [Usage](#usage)
 2.  [Colspec options](#column-options)
-3.  [Formats](#formats)
-4.  [License](#license)
+3.  [Table options](#table-options)
+4.  [Formats](#formats)
+5.  [License](#license)
 
 
 <a id="usage"></a>
@@ -93,6 +94,44 @@ You can mix and match colspec forms (maps and keywords):
 |    Carola | Carol      |
 |   Duggler | Doug       |
 |-----------+------------|
+```
+
+
+### Alternative data shapes
+
+In addition to a collection of maps, `table` accepts a few other data shapes.
+
+A plain map is rendered as a two-column key/value table:
+
+```clojure
+(crockery/print-table (array-map :first-name "Alice" :last-name "Anderson" :age 32))
+```
+
+```
+|-------------+----------|
+| Key         | Value    |
+|-------------+----------|
+| :first-name | Alice    |
+| :last-name  | Anderson |
+| :age        | 32       |
+|-------------+----------|
+```
+
+A sequence of sequences is rendered using the first inner sequence as column headers:
+
+```clojure
+(crockery/print-table [["Name" "Score"]
+                       ["Alice" 95]
+                       ["Bob" 87]])
+```
+
+```
+|-------+-------|
+| Name  | Score |
+|-------+-------|
+| Alice | 95    |
+| Bob   | 87    |
+|-------+-------|
 ```
 
 
@@ -215,6 +254,140 @@ Provide your own header title rather than titleizing the `:name` parameter.
 ### :title-align
 
 Same properties as `:align`, but only affects the header.
+
+
+### :render-cell
+
+A function applied to each cell value (after `:key-fn`, before escaping) to produce the display string. Defaults to `str`, with special handling for `nil` (empty string) and `java.util.Date`. Must return a string.
+
+```clojure
+(crockery/print-table
+ [:first-name
+  {:name :age, :render-cell #(str % " yrs")}]
+ people)
+```
+
+```
+|------------+--------|
+| First Name | Age    |
+|------------+--------|
+| Alice      | 32 yrs |
+| Bob        | 29 yrs |
+| Carol      | 26 yrs |
+| Doug       | 41 yrs |
+|------------+--------|
+```
+
+
+### :render-title
+
+A function applied to the column's `:name` (or `:key-fn`) to produce the header string, instead of the default titleization. Must return a string.
+
+```clojure
+(crockery/print-table
+ [{:name :first-name, :render-title name} :age]
+ people)
+```
+
+```
+|------------+-----|
+| first-name | Age |
+|------------+-----|
+| Alice      | 32  |
+| Bob        | 29  |
+| Carol      | 26  |
+| Doug       | 41  |
+|------------+-----|
+```
+
+
+### :ellipsis
+
+When `true` and a cell value exceeds `:width`, the value is truncated and `...` is appended rather than cutting off abruptly.
+
+```clojure
+(crockery/print-table [{:name :last-name, :width 7, :ellipsis true}] people)
+```
+
+```
+|---------|
+| Last... |
+|---------|
+| Ande... |
+| Bobb... |
+| Carola  |
+| Duggler |
+|---------|
+```
+
+Note: `:ellipsis` is also set automatically on columns that are shrunk by `:max-width` rebalancing.
+
+
+### :ignore-ansi?
+
+When `true`, ANSI escape codes in cell values are excluded from width calculations and truncation. Useful when passing pre-colored strings to the table so that the visual width is correct.
+
+
+<a id="table-options"></a>
+
+## Table options
+
+Options are passed as a map, either as the first argument to `table` or `print-table`, or by rebinding `crockery.core/*default-options*`.
+
+
+### :format
+
+The output format. Can be a built-in format keyword (e.g. `:org`, `:gfm`, `:fancy`) or any value implementing `crockery.protocols/RenderTable`. Defaults to `:org`.
+
+
+### :columns
+
+An alternative to passing columns as a separate argument — useful when passing everything in a single options map.
+
+```clojure
+(crockery/print-table {:columns [:first-name :age]} people)
+```
+
+```
+|------------+-----|
+| First Name | Age |
+|------------+-----|
+| Alice      | 32  |
+| Bob        | 29  |
+| Carol      | 26  |
+| Doug       | 41  |
+|------------+-----|
+```
+
+
+### :defaults
+
+A map of colspec defaults applied to every column before per-column options. Useful for setting a global alignment or other option.
+
+```clojure
+(crockery/print-table {:defaults {:align :right}} [:first-name :age] people)
+```
+
+```
+|------------+-----|
+| First Name | Age |
+|------------+-----|
+|      Alice |  32 |
+|        Bob |  29 |
+|      Carol |  26 |
+|       Doug |  41 |
+|------------+-----|
+```
+
+
+### :max-width
+
+The maximum total character width of the rendered table. When the auto-calculated width exceeds this, columns are proportionally shrunk and `:ellipsis` is enabled on the affected columns. Defaults to the detected terminal width (via the `COLUMNS` environment variable or `stty=/=tput`).
+
+
+### :titles?
+
+When `false`, suppresses the header row entirely. Defaults to `true`.
 
 
 <a id="formats"></a>
@@ -393,7 +566,7 @@ Like `:fancy`, but with rounded corners. `:rounded-grid` is also available if yo
 
 ### :double
 
-Like `:fancy`, but with rounded corners. `:double-grid` is also available if you'd like separators between data rows.
+Like `:fancy`, but with double-line borders. `:double-grid` is also available if you'd like separators between data rows.
 
 ```clojure
 (crockery/print-table {:format :double} colspec people)

@@ -36,6 +36,7 @@ Require =crockery.core=, which contains the primary API:
 
 #+RESULTS:
 #+begin_example
+nil
 #+end_example
 
 The examples that follow use this data:
@@ -105,6 +106,45 @@ You can mix and match colspec forms (maps and keywords):
 |    Carola | Carol      |
 |   Duggler | Doug       |
 |-----------+------------|
+#+end_example
+
+*** Alternative data shapes
+
+In addition to a collection of maps, =table= accepts a few other data shapes.
+
+A plain map is rendered as a two-column key/value table:
+
+#+begin_src clojure
+(crockery/print-table (array-map :first-name "Alice" :last-name "Anderson" :age 32))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+|-------------+----------|
+| Key         | Value    |
+|-------------+----------|
+| :first-name | Alice    |
+| :last-name  | Anderson |
+| :age        | 32       |
+|-------------+----------|
+#+end_example
+
+A sequence of sequences is rendered using the first inner sequence as column headers:
+
+#+begin_src clojure
+(crockery/print-table [["Name" "Score"]
+                       ["Alice" 95]
+                       ["Bob" 87]])
+#+end_src
+
+#+RESULTS:
+#+begin_example
+|-------+-------|
+| Name  | Score |
+|-------+-------|
+| Alice | 95    |
+| Bob   | 87    |
+|-------+-------|
 #+end_example
 
 ** Colspec options
@@ -234,6 +274,141 @@ Provide your own header title rather than titleizing the =:name= parameter.
 *** :title-align
 
 Same properties as =:align=, but only affects the header.
+
+*** :render-cell
+
+A function applied to each cell value (after =:key-fn=, before
+escaping) to produce the display string. Defaults to =str=, with
+special handling for =nil= (empty string) and =java.util.Date=. Must
+return a string.
+
+#+begin_src clojure
+(crockery/print-table
+ [:first-name
+  {:name :age, :render-cell #(str % " yrs")}]
+ people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+|------------+--------|
+| First Name | Age    |
+|------------+--------|
+| Alice      | 32 yrs |
+| Bob        | 29 yrs |
+| Carol      | 26 yrs |
+| Doug       | 41 yrs |
+|------------+--------|
+#+end_example
+
+*** :render-title
+
+A function applied to the column's =:name= (or =:key-fn=) to produce
+the header string, instead of the default titleization. Must return a
+string.
+
+#+begin_src clojure
+(crockery/print-table
+ [{:name :first-name, :render-title name} :age]
+ people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+|------------+-----|
+| first-name | Age |
+|------------+-----|
+| Alice      | 32  |
+| Bob        | 29  |
+| Carol      | 26  |
+| Doug       | 41  |
+|------------+-----|
+#+end_example
+
+*** :ellipsis
+
+When =true= and a cell value exceeds =:width=, the value is truncated and =...= is appended rather than cutting off abruptly.
+
+#+begin_src clojure
+(crockery/print-table [{:name :last-name, :width 7, :ellipsis true}] people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+|---------|
+| Last... |
+|---------|
+| Ande... |
+| Bobb... |
+| Carola  |
+| Duggler |
+|---------|
+#+end_example
+
+Note: =:ellipsis= is also set automatically on columns that are shrunk by =:max-width= rebalancing.
+
+*** :ignore-ansi?
+
+When =true=, ANSI escape codes in cell values are excluded from width calculations and truncation. Useful when passing pre-colored strings to the table so that the visual width is correct.
+
+** Table options
+:PROPERTIES:
+:CUSTOM_ID: table-options
+:END:
+
+Options are passed as a map, either as the first argument to =table= or =print-table=, or by rebinding =crockery.core/*default-options*=.
+
+*** :format
+
+The output format. Can be a built-in format keyword (e.g. =:org=, =:gfm=, =:fancy=) or any value implementing =crockery.protocols/RenderTable=. Defaults to =:org=.
+
+*** :columns
+
+An alternative to passing columns as a separate argument — useful when passing everything in a single options map.
+
+#+begin_src clojure
+(crockery/print-table {:columns [:first-name :age]} people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+|------------+-----|
+| First Name | Age |
+|------------+-----|
+| Alice      | 32  |
+| Bob        | 29  |
+| Carol      | 26  |
+| Doug       | 41  |
+|------------+-----|
+#+end_example
+
+*** :defaults
+
+A map of colspec defaults applied to every column before per-column options. Useful for setting a global alignment or other option.
+
+#+begin_src clojure
+(crockery/print-table {:defaults {:align :right}} [:first-name :age] people)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+|------------+-----|
+| First Name | Age |
+|------------+-----|
+|      Alice |  32 |
+|        Bob |  29 |
+|      Carol |  26 |
+|       Doug |  41 |
+|------------+-----|
+#+end_example
+
+*** :max-width
+
+The maximum total character width of the rendered table. When the auto-calculated width exceeds this, columns are proportionally shrunk and =:ellipsis= is enabled on the affected columns. Defaults to the detected terminal width (via the =COLUMNS= environment variable or =stty=/=tput=).
+
+*** :titles?
+
+When =false=, suppresses the header row entirely. Defaults to =true=.
 
 ** Formats
 :PROPERTIES:
@@ -421,7 +596,7 @@ available if you'd like separators between data rows.
 #+end_example
 *** :double
 
-Like =:fancy=, but with rounded corners. =:double-grid= is also
+Like =:fancy=, but with double-line borders. =:double-grid= is also
 available if you'd like separators between data rows.
 
 #+begin_src clojure
