@@ -92,7 +92,8 @@
         [detected-cols data] (data->cols-rows data)
         cols (into [] (comp (map to-column-map)
                             (map #(merge defaults %))
-                            (map normalize-column))
+                            (map normalize-column)
+                            (filter #(:when % true)))
                    (or cols
                        (:columns opts)
                        detected-cols))]

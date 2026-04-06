@@ -152,6 +152,32 @@
                   "|--------------------------|"]]
     (is (table? (table-as-string data) expected))))
 
+(deftest test-when-colspec
+  (testing ":when false excludes a column"
+    (let [rendered (table-as-string [{:name :name}
+                                     {:name :age :when false}]
+                                    people)]
+      (is (table? rendered
+                  ["|-----------|"
+                   "| Name      |"
+                   "|-----------|"
+                   "| Alice     |"
+                   "| Bob       |"
+                   "| Charlotte |"
+                   "|-----------|"]))))
+  (testing ":when true (default) includes a column"
+    (let [rendered (table-as-string [{:name :name}
+                                     {:name :age :when true}]
+                                    people)]
+      (is (table? rendered
+                  ["|-----------+-----|"
+                   "| Name      | Age |"
+                   "|-----------+-----|"
+                   "| Alice     | 29  |"
+                   "| Bob       | 22  |"
+                   "| Charlotte | 42  |"
+                   "|-----------+-----|"])))))
+
 (deftest test-alignment
   (testing "Title alignment can differ"
     (let [rendered (table-as-string [{:key-fn :name
