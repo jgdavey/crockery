@@ -382,7 +382,7 @@ A map of colspec defaults applied to every column before per-column options. Use
 
 ### :max-width
 
-The maximum total character width of the rendered table. When the auto-calculated width exceeds this, columns are proportionally shrunk and `:ellipsis` is enabled on the affected columns. Defaults to the detected terminal width (via the `COLUMNS` environment variable or `stty=/=tput`).
+The maximum total character width of the rendered table. When the auto-calculated width exceeds this, columns are proportionally shrunk and `:ellipsis` is enabled on the affected columns. Defaults to the detected terminal width (via the `COLUMNS` environment variable, `stty`, or `tput`).
 
 
 ### :titles?
