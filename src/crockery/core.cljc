@@ -1,5 +1,6 @@
 (ns crockery.core
-  (:require [crockery.fancy :as fancy]
+  (:require [clojure.string :as str]
+            [crockery.fancy :as fancy]
             [crockery.gfm :as gfm]
             [crockery.simple :as simple]
             [crockery.tsv :as tsv]
@@ -106,6 +107,14 @@
          {:keys [format]} opts
          renderer (get (builtin-renderers) format format)]
      (p/render-table renderer opts cols data))))
+
+(defn table-str
+  "Return a table as a rendered string
+
+  Takes same arguments as `table`"
+  {:arglists '([data] [cols-or-opts data] [opts cols data])}
+  [& args]
+  (str/join "\n" (apply table args)))
 
 (defn print-table
   "Print a table to *out*

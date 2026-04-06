@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add new core function `table-str` to return a rendered table directly
+
 ## [0.3.3] - 2025-12-20
 
 - Add new option `:titles?` (default true) to suppress rendering the

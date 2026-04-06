@@ -21,6 +21,9 @@
        result#)))
 
 (defn table-as-string [& args]
+  (apply crock/table-str args))
+
+(defn printed-table-as-string [& args]
   (str/replace
    (with-out-str
      (apply crock/print-table args))
@@ -31,7 +34,18 @@
              {:name "Charlotte" :age 42 :joined #inst "2014-04-17T12:34:56.789-00:00"}])
 
 (deftest test-table-no-options
-  (let [rendered (table-as-string people)]
+  (let [rendered (printed-table-as-string people)]
+    (is (table? rendered
+                ["|-----------+-----+--------------------------|"
+                 "| Name      | Age | Joined                   |"
+                 "|-----------+-----+--------------------------|"
+                 "| Alice     | 29  | 2019-03-01T00:00:00Z     |"
+                 "| Bob       | 22  | 2020-10-29T00:00:00Z     |"
+                 "| Charlotte | 42  | 2014-04-17T12:34:56.789Z |"
+                 "|-----------+-----+--------------------------|"]))))
+
+(deftest test-table-str-no-options
+  (let [rendered (crock/table-str people)]
     (is (table? rendered
                 ["|-----------+-----+--------------------------|"
                  "| Name      | Age | Joined                   |"
@@ -375,7 +389,6 @@
                 expected))))
 
 (deftest test-other-formats
-  true
   (let [data [{:name "Alice" :age 42}
               {:name "Bob"   :age 27}]
         cols [:name
