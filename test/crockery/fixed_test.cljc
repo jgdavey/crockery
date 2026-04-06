@@ -19,7 +19,11 @@
          [{:width 10 :user-width 14 :ellipsis true}
           {:width 11 :user-width 12 :ellipsis true}]
          (fixed/rebalance-widths [{:width 14 :user-width 14}
-                                  {:width 12 :user-width 12}] 21)))))
+                                  {:width 12 :user-width 12}] 21)))
+    (is (= [{:width 1 :ellipsis true}
+            {:width 1 :ellipsis true}
+            {:width 1 :ellipsis true}]
+           (fixed/rebalance-widths [{:width 10} {:width 10} {:width 10}] 2)))))
 
 (deftest test-parse-format
   (let [chrome {:l "|-"

@@ -97,7 +97,7 @@
         (if (empty? remaining)
           out
           (let [colspec (first remaining)
-                per-col (quot remaining-width (count remaining))
+                per-col (max 1 (quot remaining-width (count remaining)))
                 new-col (if (and (> (:width colspec) per-col)
                                  (or resize-user-widths (nil? (:user-width colspec))))
                           (assoc colspec
