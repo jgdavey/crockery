@@ -6,7 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-04-12
+### Added
 - Add new core function `table-str` to return a rendered table directly
+
+### Changed
+- Fix several doc typos/inconsistencies
+- Bump dependency on Clojure to latest
+- Fix :when colspec option
+- Prevent zero-width columns during rebalancing
 
 ## [0.3.3] - 2025-12-20
 
