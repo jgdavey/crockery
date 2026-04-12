@@ -477,6 +477,27 @@
                   (table-as-string cols data))
                 expected))))
 
+(deftest test-jira-format
+  (testing "header row uses || delimiters"
+    (let [expected ["|| Name  || Age ||"
+                    "| Alice  | 42   |"
+                    "| Bob    | 27   |"]
+          data [{:name "Alice" :age 42}
+                {:name "Bob"   :age 27}]
+          cols [:name {:name :age :width 5}]]
+      (is (table? (table-as-string {:format :jira} cols data) expected))
+      (is (table? (binding [crock/*default-options* {:format :jira}]
+                    (table-as-string cols data))
+                  expected))))
+  (testing "pipes in cell content are escaped"
+    (let [expected ["|| Name       || Age ||"
+                    "| A\\|ice     | 42   |"
+                    "| Bob         | 27   |"]
+          data [{:name "A|ice" :age 42}
+                {:name "Bob"   :age 27}]
+          cols [:name {:name :age :width 5}]]
+      (is (table? (table-as-string {:format :jira} cols data) expected)))))
+
 (deftest test-gfm-format
   (testing "includes alignment hints"
     (let [expected ["|   Name    | Age | Joined                   |"

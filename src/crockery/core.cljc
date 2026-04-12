@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [crockery.fancy :as fancy]
             [crockery.gfm :as gfm]
+            [crockery.jira :as jira]
             [crockery.simple :as simple]
             [crockery.tsv :as tsv]
             [crockery.protocols :as p]
@@ -19,6 +20,7 @@
    :fancy-grid fancy/fancy-grid
    :gfm gfm/gfm
    :grid simple/grid
+   :jira jira/jira
    :heavy fancy/heavy
    :heavy-grid fancy/heavy-grid
    :mixed-grid fancy/mixed-grid
